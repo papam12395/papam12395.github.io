@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stunt Enduro</title>
+    <title>Procida 300CC — 3D Эндуро</title>
     <style>
-        /* ─── СБРОС ─── */
+        /* ─── СБРОС И БАЗА ─── */
         * {
             margin: 0;
             padding: 0;
@@ -14,337 +14,546 @@
 
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
-            background: #0a0c14;
+            background: #080b16;
             color: #fff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             overflow: hidden;
+            height: 100vh;
+            user-select: none;
         }
 
-        /* ─── ФОН (3D-сетка) ─── */
-        .bg-grid {
+        /* ─── КОНТЕЙНЕР 3D ─── */
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        /* ─── ИНФО-ПАНЕЛЬ (поверх 3D) ─── */
+        .info {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            perspective: 800px;
-            background: radial-gradient(circle at 20% 30%, #13182b, #060810);
-        }
-
-        .bg-grid::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 200%;
-            height: 200%;
-            background-image:
-                linear-gradient(rgba(60, 180, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(60, 180, 255, 0.05) 1px, transparent 1px);
-            background-size: 60px 60px;
-            transform: rotateX(55deg) translateY(-10%);
-            animation: gridMove 18s linear infinite;
-        }
-
-        @keyframes gridMove {
-            0% {
-                transform: rotateX(55deg) translateY(-10%) translateX(0);
-            }
-            100% {
-                transform: rotateX(55deg) translateY(-10%) translateX(-60px);
-            }
-        }
-
-        /* ─── ГЛАВНАЯ КАРТОЧКА ─── */
-        .hero {
-            position: relative;
-            z-index: 1;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
-            padding: 40px 30px;
-            max-width: 720px;
-            width: 100%;
+            z-index: 10;
+            pointer-events: none;
+            background: rgba(8, 11, 22, 0.6);
+            backdrop-filter: blur(14px);
+            padding: 18px 42px 20px;
+            border-radius: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
         }
 
-        /* ─── CSS-МОТОЦИКЛ (3D-изометрия) ─── */
-        .bike-3d {
-            width: 320px;
-            height: 220px;
-            margin: 0 auto 36px;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: bikeFloat 4s ease-in-out infinite;
+        .info h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #7abfff, #3a7abd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        @keyframes bikeFloat {
-            0%,
-            100% {
-                transform: translateY(0) rotateX(2deg);
-            }
-            50% {
-                transform: translateY(-12px) rotateX(-2deg);
-            }
+        .info p {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.25);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 2px;
+            font-weight: 300;
         }
 
-        /* ── КОЛЁСА ── */
-        .wheel {
-            position: absolute;
-            bottom: 10px;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 40% 35%, #2a2f3f, #0e111b);
-            border: 5px solid #3a3f55;
-            box-shadow: 0 0 0 6px rgba(60, 180, 255, 0.08), inset 0 -8px 20px rgba(0, 0, 0, 0.8);
-        }
-
-        .wheel::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #5a6a8a, #1a1f30);
-            box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.6);
-        }
-
-        /* спицы (крест) */
-        .wheel::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 2px;
-            height: 70px;
-            background: rgba(160, 200, 255, 0.12);
-            box-shadow: -34px 0 0 rgba(160, 200, 255, 0.08), 34px 0 0 rgba(160, 200, 255, 0.08);
-            rotate: 45deg;
-        }
-
-        .wheel-front {
-            right: 8px;
-            transform: rotateZ(-8deg);
-        }
-        .wheel-rear {
-            left: 8px;
-            transform: rotateZ(8deg);
-        }
-
-        /* ── РАМА ── */
-        .frame {
-            position: absolute;
+        /* ─── ПОДСКАЗКА ─── */
+        .hint {
+            position: fixed;
             top: 30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 200px;
-            height: 110px;
-            background: linear-gradient(145deg, #2d3a5a, #141c2e);
-            clip-path: polygon(10% 100%, 35% 20%, 65% 20%, 90% 100%, 70% 100%, 55% 50%, 45% 50%, 30% 100%);
-            border-radius: 8px 8px 0 0;
-            box-shadow: inset 0 -10px 30px rgba(0, 0, 0, 0.6), 0 10px 30px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            color: rgba(255, 255, 255, 0.12);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 22px;
+            border-radius: 40px;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            pointer-events: none;
+            animation: pulseHint 3s ease-in-out infinite;
         }
 
-        /* ── РУЛЬ ── */
-        .handlebar {
-            position: absolute;
-            top: 22px;
-            right: 50px;
-            width: 60px;
-            height: 8px;
-            background: linear-gradient(90deg, #4a5a7a, #6a7a9a);
-            border-radius: 12px;
-            transform: rotateZ(-12deg) rotateX(10deg);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-        }
-        .handlebar::after {
-            content: '';
-            position: absolute;
-            left: -6px;
-            top: -14px;
-            width: 8px;
-            height: 28px;
-            background: linear-gradient(180deg, #5a6a8a, #2a3a5a);
-            border-radius: 4px;
-            transform: rotateZ(8deg);
-            box-shadow: inset -2px 0 6px rgba(0, 0, 0, 0.4);
-        }
-
-        /* ── СИДЕНЬЕ ── */
-        .seat {
-            position: absolute;
-            top: 18px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 48px;
-            height: 14px;
-            background: linear-gradient(180deg, #3a2a1a, #1a100a);
-            border-radius: 20px 20px 6px 6px;
-            box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.6);
-        }
-
-        /* ── ВЫХЛОПНАЯ ── */
-        .exhaust {
-            position: absolute;
-            bottom: 26px;
-            left: -4px;
-            width: 16px;
-            height: 28px;
-            background: linear-gradient(90deg, #2a2a3a, #4a4a5a);
-            border-radius: 0 8px 8px 0;
-            box-shadow: inset -4px 0 10px rgba(0, 0, 0, 0.5);
-            transform: rotateZ(6deg);
-        }
-        .exhaust::after {
-            content: '';
-            position: absolute;
-            top: -8px;
-            left: 2px;
-            width: 10px;
-            height: 10px;
-            background: radial-gradient(circle, rgba(255, 120, 40, 0.3), transparent);
-            border-radius: 50%;
-            animation: flame 1.4s ease-in-out infinite alternate;
-        }
-
-        @keyframes flame {
-            0% {
-                transform: scale(0.6);
-                opacity: 0.2;
-            }
+        @keyframes pulseHint {
+            0%,
             100% {
-                transform: scale(1.6);
-                opacity: 0.6;
+                opacity: 0.3;
             }
-        }
-
-        /* ─── ТЕКСТ ─── */
-        .title {
-            font-size: clamp(2.4rem, 8vw, 4.2rem);
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            background: linear-gradient(135deg, #7abfff, #3a7abd, #1a4a8a);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 60px rgba(60, 150, 255, 0.2);
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            font-size: clamp(0.9rem, 2vw, 1.3rem);
-            color: rgba(255, 255, 255, 0.35);
-            letter-spacing: 6px;
-            text-transform: uppercase;
-            font-weight: 300;
-            margin-bottom: 28px;
-        }
-
-        .desc {
-            font-size: 1.05rem;
-            line-height: 1.7;
-            color: rgba(255, 255, 255, 0.55);
-            max-width: 480px;
-            margin: 0 auto 32px;
-            font-weight: 300;
-        }
-
-        /* ─── КНОПКИ ─── */
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 14px;
-        }
-
-        .btn {
-            padding: 14px 40px;
-            border-radius: 60px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.04);
-            color: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(8px);
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #2a6bc4, #1a4a9a);
-            color: #fff;
-            border-color: #3a7ad4;
-            box-shadow: 0 8px 28px rgba(40, 100, 200, 0.25);
-        }
-        .btn-primary:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 14px 40px rgba(40, 100, 200, 0.4);
-            background: linear-gradient(135deg, #3a7bd4, #2a5aaa);
-        }
-
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
+            50% {
+                opacity: 0.9;
+            }
         }
 
         /* ─── АДАПТИВ ─── */
-        @media (max-width: 500px) {
-            .bike-3d {
-                transform: scale(0.7);
-                margin-bottom: 10px;
+        @media (max-width: 600px) {
+            .info {
+                padding: 14px 24px 16px;
+                bottom: 24px;
+                width: 90%;
+                border-radius: 40px;
             }
-            .hero {
-                padding: 20px 16px;
+            .info h1 {
+                font-size: 1.1rem;
             }
-            .btn {
-                padding: 12px 28px;
-                font-size: 0.8rem;
+            .info p {
+                font-size: 0.6rem;
+            }
+            .hint {
+                top: 16px;
+                font-size: 0.55rem;
+                padding: 6px 14px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- 3D-сетка фона -->
-    <div class="bg-grid"></div>
+    <!-- 3D-контейнер -->
+    <div id="canvas-container"></div>
 
-    <!-- Основной блок -->
-    <main class="hero">
+    <!-- Подсказка -->
+    <div class="hint">🖱️ Тяни, чтобы вращать · ⚡ Скролл для зума</div>
 
-        <!-- CSS-мотоцикл в 3D-стиле -->
-        <div class="bike-3d">
-            <div class="wheel wheel-rear"></div>
-            <div class="wheel wheel-front"></div>
-            <div class="frame"></div>
-            <div class="handlebar"></div>
-            <div class="seat"></div>
-            <div class="exhaust"></div>
-        </div>
+    <!-- Инфо-панель -->
+    <div class="info">
+        <h1>🏍️ Procida 300CC</h1>
+        <p>Enduro · 2‑тактный · 2025</p>
+    </div>
 
-        <h1 class="title">Stunt Enduro</h1>
-        <p class="subtitle">Ride the edge</p>
-        <p class="desc">
-            Дёрт, дрифт, вертикаль. Только чистая механика и контроль над мотоциклом.
-            Стиль, который не прощают, но запоминают.
-        </p>
+    <!-- ─── THREE.JS ─────────────────────────────────────────────────────────── -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
 
-        <div class="btn-group">
-            <a href="#" class="btn btn-primary">Смотреть видео</a>
-            <a href="#" class="btn btn-outline">О проекте</a>
-        </div>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
-    </main>
+        // ─── СЦЕНА ──────────────────────────────────────────────────────────────
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x080b16);
+
+        // ─── КАМЕРА ─────────────────────────────────────────────────────────────
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(5, 3, 7);
+        camera.lookAt(0, 0.5, 0);
+
+        // ─── РЕНДЕРЕР WEBGL ────────────────────────────────────────────────────
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // ─── CSS2D РЕНДЕРЕР (для подписей) ──────────────────────────────────
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0';
+        labelRenderer.domElement.style.left = '0';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        document.getElementById('canvas-container').appendChild(labelRenderer.domElement);
+
+        // ─── УПРАВЛЕНИЕ ────────────────────────────────────────────────────────
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 1.2;
+        controls.minDistance = 2.5;
+        controls.maxDistance = 15;
+        controls.target.set(0, 0.6, 0);
+        controls.update();
+
+        // ─── СВЕТ ──────────────────────────────────────────────────────────────
+        const ambientLight = new THREE.AmbientLight(0x334466, 0.6);
+        scene.add(ambientLight);
+
+        const mainLight = new THREE.DirectionalLight(0xffeedd, 2.8);
+        mainLight.position.set(8, 10, 6);
+        mainLight.castShadow = true;
+        mainLight.shadow.mapSize.width = 1024;
+        mainLight.shadow.mapSize.height = 1024;
+        mainLight.shadow.camera.near = 0.5;
+        mainLight.shadow.camera.far = 20;
+        mainLight.shadow.camera.left = -5;
+        mainLight.shadow.camera.right = 5;
+        mainLight.shadow.camera.top = 5;
+        mainLight.shadow.camera.bottom = -5;
+        scene.add(mainLight);
+
+        const fillLight = new THREE.DirectionalLight(0x4488ff, 0.5);
+        fillLight.position.set(-4, 2, -6);
+        scene.add(fillLight);
+
+        const rimLight = new THREE.DirectionalLight(0x88ccff, 0.3);
+        rimLight.position.set(-2, 1, 6);
+        scene.add(rimLight);
+
+        // ─── ПОЛ С ТЕНЬЮ ──────────────────────────────────────────────────────
+        const floorGeometry = new THREE.CircleGeometry(8, 32);
+        const floorMaterial = new THREE.MeshStandardMaterial({
+            color: 0x111824,
+            roughness: 0.8,
+            metalness: 0.2,
+            transparent: true,
+            opacity: 0.8,
+        });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -0.01;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // ─── ОТРАЖЕНИЕ (слабое кольцо) ──────────────────────────────────────
+        const ringGeo = new THREE.RingGeometry(0.8, 1.4, 48);
+        const ringMat = new THREE.MeshBasicMaterial({
+            color: 0x2a4a7a,
+            transparent: true,
+            opacity: 0.08,
+            side: THREE.DoubleSide,
+        });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.y = 0.001;
+        scene.add(ring);
+
+        // ─── ПОСТРОЕНИЕ МОТОЦИКЛА ────────────────────────────────────────────
+        const bikeGroup = new THREE.Group();
+        bikeGroup.position.y = 0;
+
+        // материалы
+        const matFrame = new THREE.MeshStandardMaterial({
+            color: 0x2a3a5a,
+            metalness: 0.7,
+            roughness: 0.3,
+        });
+        const matFrameDark = new THREE.MeshStandardMaterial({
+            color: 0x1a2a3a,
+            metalness: 0.6,
+            roughness: 0.4,
+        });
+        const matPlastic = new THREE.MeshStandardMaterial({
+            color: 0x1a3a5a,
+            metalness: 0.1,
+            roughness: 0.8,
+        });
+        const matPlasticRed = new THREE.MeshStandardMaterial({
+            color: 0x8a2a1a,
+            metalness: 0.2,
+            roughness: 0.6,
+        });
+        const matEngine = new THREE.MeshStandardMaterial({
+            color: 0x4a5a6a,
+            metalness: 0.9,
+            roughness: 0.2,
+        });
+        const matGold = new THREE.MeshStandardMaterial({
+            color: 0xcc8822,
+            metalness: 0.6,
+            roughness: 0.3,
+        });
+        const matTire = new THREE.MeshStandardMaterial({
+            color: 0x1a1a1a,
+            roughness: 0.95,
+            metalness: 0.0,
+        });
+        const matRim = new THREE.MeshStandardMaterial({
+            color: 0x3a4a5a,
+            metalness: 0.8,
+            roughness: 0.2,
+        });
+        const matSeat = new THREE.MeshStandardMaterial({
+            color: 0x1a0e08,
+            roughness: 0.9,
+            metalness: 0.0,
+        });
+        const matFork = new THREE.MeshStandardMaterial({
+            color: 0x8a9aaa,
+            metalness: 0.9,
+            roughness: 0.15,
+        });
+        const matHandlebar = new THREE.MeshStandardMaterial({
+            color: 0x6a7a8a,
+            metalness: 0.8,
+            roughness: 0.2,
+        });
+        const matExhaust = new THREE.MeshStandardMaterial({
+            color: 0x5a4a3a,
+            metalness: 0.6,
+            roughness: 0.5,
+        });
+        const matLight = new THREE.MeshStandardMaterial({
+            color: 0xffeedd,
+            emissive: 0xffeeaa,
+            emissiveIntensity: 0.15,
+        });
+
+        // ─── РАМА ──────────────────────────────────────────────────────────────
+        const frameGeo = new THREE.BoxGeometry(2.2, 0.18, 0.3);
+        const frameMesh = new THREE.Mesh(frameGeo, matFrame);
+        frameMesh.position.set(0, 0.7, 0);
+        bikeGroup.add(frameMesh);
+
+        // главная труба (подседельная)
+        const tubeGeo = new THREE.CylinderGeometry(0.07, 0.09, 0.9, 8);
+        const tubeMesh = new THREE.Mesh(tubeGeo, matFrame);
+        tubeMesh.position.set(-0.2, 0.65, 0.45);
+        tubeMesh.rotation.x = 0.4;
+        bikeGroup.add(tubeMesh);
+
+        // верхняя труба
+        const tubeTop = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.06, 0.07, 0.7, 8),
+            matFrame
+        );
+        tubeTop.position.set(0.15, 0.85, -0.35);
+        tubeTop.rotation.x = -0.3;
+        tubeTop.rotation.z = 0.1;
+        bikeGroup.add(tubeTop);
+
+        // ─── ДВИГАТЕЛЬ ────────────────────────────────────────────────────────
+        const engineGeo = new THREE.BoxGeometry(0.5, 0.35, 0.35);
+        const engineMesh = new THREE.Mesh(engineGeo, matEngine);
+        engineMesh.position.set(0.0, 0.5, 0.0);
+        bikeGroup.add(engineMesh);
+
+        // цилиндр
+        const cylinderGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.3, 12);
+        const cylinderMesh = new THREE.Mesh(cylinderGeo, matEngine);
+        cylinderMesh.position.set(0.0, 0.72, 0.05);
+        bikeGroup.add(cylinderMesh);
+
+        // головка цилиндра (золотая)
+        const headGeo = new THREE.CylinderGeometry(0.14, 0.12, 0.08, 12);
+        const headMesh = new THREE.Mesh(headGeo, matGold);
+        headMesh.position.set(0.0, 0.88, 0.05);
+        bikeGroup.add(headMesh);
+
+        // ─── ВИЛКА ПЕРЕДНЯЯ ──────────────────────────────────────────────────
+        const forkGeo = new THREE.CylinderGeometry(0.05, 0.06, 0.7, 8);
+        const forkL = new THREE.Mesh(forkGeo, matFork);
+        forkL.position.set(0.4, 0.55, -0.45);
+        bikeGroup.add(forkL);
+
+        const forkR = new THREE.Mesh(forkGeo, matFork);
+        forkR.position.set(-0.4, 0.55, -0.45);
+        bikeGroup.add(forkR);
+
+        // траверса
+        const tripleGeo = new THREE.BoxGeometry(0.9, 0.06, 0.12);
+        const tripleMesh = new THREE.Mesh(tripleGeo, matFrameDark);
+        tripleMesh.position.set(0, 0.85, -0.45);
+        bikeGroup.add(tripleMesh);
+
+        // ─── РУЛЬ ──────────────────────────────────────────────────────────────
+        const barGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.7, 8);
+        const barMesh = new THREE.Mesh(barGeo, matHandlebar);
+        barMesh.position.set(0, 0.92, -0.7);
+        barMesh.rotation.x = 0.15;
+        barMesh.rotation.z = 0.1;
+        bikeGroup.add(barMesh);
+
+        // грипсы
+        const gripGeo = new THREE.CylinderGeometry(0.04, 0.045, 0.08, 8);
+        const gripMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 });
+        const gripL = new THREE.Mesh(gripGeo, gripMat);
+        gripL.position.set(0.35, 0.92, -0.72);
+        gripL.rotation.x = 0.15;
+        bikeGroup.add(gripL);
+
+        const gripR = new THREE.Mesh(gripGeo, gripMat);
+        gripR.position.set(-0.35, 0.92, -0.72);
+        gripR.rotation.x = 0.15;
+        bikeGroup.add(gripR);
+
+        // ─── КОЛЁСА ────────────────────────────────────────────────────────────
+        function createWheel(x, z, scale = 1) {
+            const group = new THREE.Group();
+
+            // шина
+            const tireGeo = new THREE.TorusGeometry(0.42 * scale, 0.12 * scale, 16, 24);
+            const tire = new THREE.Mesh(tireGeo, matTire);
+            tire.rotation.y = Math.PI / 2;
+            group.add(tire);
+
+            // диск
+            const rimGeo = new THREE.CylinderGeometry(0.3 * scale, 0.3 * scale, 0.06 * scale, 16);
+            const rim = new THREE.Mesh(rimGeo, matRim);
+            rim.rotation.x = Math.PI / 2;
+            group.add(rim);
+
+            // спицы (крест)
+            for (let i = 0; i < 4; i++) {
+                const spokeGeo = new THREE.BoxGeometry(0.35 * scale, 0.015 * scale, 0.015 * scale);
+                const spoke = new THREE.Mesh(spokeGeo, matRim);
+                spoke.rotation.z = (i * Math.PI) / 4;
+                group.add(spoke);
+            }
+
+            // ступица
+            const hubGeo = new THREE.CylinderGeometry(0.08 * scale, 0.08 * scale, 0.08 * scale, 12);
+            const hub = new THREE.Mesh(hubGeo, matGold);
+            hub.rotation.x = Math.PI / 2;
+            group.add(hub);
+
+            group.position.set(x, 0.12, z);
+            return group;
+        }
+
+        const rearWheel = createWheel(0.9, 0.45, 1);
+        bikeGroup.add(rearWheel);
+
+        const frontWheel = createWheel(-0.9, -0.5, 1);
+        bikeGroup.add(frontWheel);
+
+        // ─── КРЫЛЬЯ ────────────────────────────────────────────────────────────
+        // переднее
+        const fenderGeo = new THREE.BoxGeometry(0.45, 0.05, 0.9);
+        const fender = new THREE.Mesh(fenderGeo, matPlastic);
+        fender.position.set(-0.7, 0.32, -0.5);
+        fender.rotation.x = 0.1;
+        bikeGroup.add(fender);
+
+        // заднее
+        const fenderR = new THREE.Mesh(
+            new THREE.BoxGeometry(0.45, 0.05, 0.8),
+            matPlastic
+        );
+        fenderR.position.set(0.7, 0.32, 0.5);
+        fenderR.rotation.x = -0.1;
+        bikeGroup.add(fenderR);
+
+        // ─── СИДЕНЬЕ ──────────────────────────────────────────────────────────
+        const seatGeo = new THREE.BoxGeometry(0.5, 0.12, 0.4);
+        const seatMesh = new THREE.Mesh(seatGeo, matSeat);
+        seatMesh.position.set(0.15, 0.78, 0.45);
+        seatMesh.rotation.x = 0.15;
+        bikeGroup.add(seatMesh);
+
+        // ─── ТОПЛИВНЫЙ БАК ──────────────────────────────────────────────────
+        const tankGeo = new THREE.SphereGeometry(0.25, 12, 12);
+        const tank = new THREE.Mesh(tankGeo, matPlasticRed);
+        tank.scale.set(1.1, 0.6, 0.8);
+        tank.position.set(-0.1, 0.8, -0.2);
+        bikeGroup.add(tank);
+
+        // ─── ВЫХЛОПНАЯ ТРУБА ──────────────────────────────────────────────────
+        const exhaustGeo = new THREE.CylinderGeometry(0.04, 0.06, 0.5, 8);
+        const exhaust = new THREE.Mesh(exhaustGeo, matExhaust);
+        exhaust.position.set(0.95, 0.2, 0.35);
+        exhaust.rotation.z = 0.2;
+        bikeGroup.add(exhaust);
+
+        // глушитель
+        const silencerGeo = new THREE.CylinderGeometry(0.06, 0.08, 0.25, 8);
+        const silencer = new THREE.Mesh(silencerGeo, matExhaust);
+        silencer.position.set(1.15, 0.15, 0.4);
+        silencer.rotation.z = 0.1;
+        bikeGroup.add(silencer);
+
+        // ─── ФАРА ──────────────────────────────────────────────────────────────
+        const lightGeo = new THREE.SphereGeometry(0.1, 12, 12);
+        const lightMesh = new THREE.Mesh(lightGeo, matLight);
+        lightMesh.scale.set(0.8, 0.6, 0.6);
+        lightMesh.position.set(-0.9, 0.55, -0.75);
+        bikeGroup.add(lightMesh);
+
+        // оправа фары
+        const bezelGeo = new THREE.TorusGeometry(0.1, 0.025, 8, 12);
+        const bezel = new THREE.Mesh(bezelGeo, matFrameDark);
+        bezel.position.set(-0.9, 0.55, -0.78);
+        bikeGroup.add(bezel);
+
+        // ─── ДОБАВЛЯЕМ МОТОЦИКЛ В СЦЕНУ ──────────────────────────────────────
+        scene.add(bikeGroup);
+
+        // ─── ПОДПИСИ ДЕТАЛЕЙ (CSS2DRenderer) ──────────────────────────────────
+        function createLabel(text, pos, color = '#5a8ac0') {
+            const div = document.createElement('div');
+            div.textContent = text;
+            div.style.color = color;
+            div.style.fontSize = '11px';
+            div.style.fontWeight = '500';
+            div.style.fontFamily = 'Segoe UI, sans-serif';
+            div.style.textShadow = '0 0 20px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.8)';
+            div.style.letterSpacing = '1px';
+            div.style.background = 'rgba(8,11,22,0.5)';
+            div.style.padding = '3px 12px';
+            div.style.borderRadius = '20px';
+            div.style.backdropFilter = 'blur(4px)';
+            div.style.border = '1px solid rgba(255,255,255,0.04)';
+            div.style.pointerEvents = 'none';
+            const label = new CSS2DObject(div);
+            label.position.set(pos[0], pos[1], pos[2]);
+            return label;
+        }
+
+        scene.add(createLabel('🔧 Двигатель 300cc', [0.0, 1.05, 0.0], '#88ccff'));
+        scene.add(createLabel('🛞 Колесо 21"', [-0.9, 0.6, -0.9], '#88ccff'));
+        scene.add(createLabel('🛞 Колесо 18"', [0.9, 0.6, 0.9], '#88ccff'));
+        scene.add(createLabel('🪑 Сиденье', [0.15, 1.0, 0.7], '#cc9966'));
+        scene.add(createLabel('⛽ Топливный бак', [-0.1, 1.15, -0.2], '#cc5544'));
+        scene.add(createLabel('💡 LED-фара', [-0.9, 0.75, -1.0], '#ffdd88'));
+
+        // ─── АНИМАЦИЯ ──────────────────────────────────────────────────────────
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        animate();
+
+        // ─── АВТОПОВОРОТ ПО НАВЕДЕНИЮ ─────────────────────────────────────────
+        renderer.domElement.addEventListener('mouseenter', () => {
+            controls.autoRotate = false;
+        });
+        renderer.domElement.addEventListener('mouseleave', () => {
+            controls.autoRotate = true;
+        });
+        // на тач-устройствах — автовращение выключается при касании
+        renderer.domElement.addEventListener('touchstart', () => {
+            controls.autoRotate = false;
+        });
+        renderer.domElement.addEventListener('touchend', () => {
+            setTimeout(() => { controls.autoRotate = true; }, 3000);
+        });
+
+        // ─── РЕСАЙЗ ─────────────────────────────────────────────────────────────
+        window.addEventListener('resize', () => {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+            labelRenderer.setSize(w, h);
+        });
+
+        // небольшая задержка перед автовращением
+        setTimeout(() => { controls.autoRotate = true; }, 1000);
+
+        console.log('🏍️ Procida 300CC 3D загружен!');
+        console.log('🖱️ Тяни мышкой, чтобы вращать байк');
+    </script>
 
 </body>
 </html>
