@@ -684,4 +684,224 @@
         bike.add(housing);
 
         // Оправа фары
-        const bezel = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.02, 8, 14), mat
+        const bezel = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.02, 8, 14), mat.frameDark);
+        bezel.position.set(-0.85, 0.58, -0.8);
+        bike.add(bezel);
+
+        // Стекло фары
+        const lens = new THREE.Mesh(
+            new THREE.CircleGeometry(0.075, 12),
+            new THREE.MeshStandardMaterial({
+                color: 0x88ccff,
+                transparent: true,
+                opacity: 0.15,
+                emissive: 0x4488ff,
+                emissiveIntensity: 0.05
+            })
+        );
+        lens.position.set(-0.85, 0.58, -0.75);
+        bike.add(lens);
+
+        // =========================================================================
+        //  ЗАЩИТА РАДИАТОРА
+        // =========================================================================
+        const radGuard = new THREE.Mesh(
+            new THREE.BoxGeometry(0.32, 0.32, 0.04),
+            new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.0, roughness: 0.5 })
+        );
+        radGuard.position.set(-0.05, 0.58, -0.46);
+        bike.add(radGuard);
+
+        // Радиатор (защита)
+        const radiator = new THREE.Mesh(
+            new THREE.BoxGeometry(0.28, 0.28, 0.02),
+            mat.radiator
+        );
+        radiator.position.set(-0.05, 0.58, -0.47);
+        bike.add(radiator);
+
+        // Шланги радиатора
+        for (let i = 0; i < 2; i++) {
+            const hose = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.01, 0.012, 0.15, 6),
+                mat.hose
+            );
+            hose.position.set(-0.05 + i * 0.06, 0.5 + i * 0.06, -0.47);
+            hose.rotation.x = 0.2 - i * 0.1;
+            bike.add(hose);
+        }
+
+        // =========================================================================
+        //  НОМЕРНАЯ ПАНЕЛЬ
+        // =========================================================================
+        const numberPlate = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.3, 0.4),
+            new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                emissive: 0x4488ff,
+                emissiveIntensity: 0.02
+            })
+        );
+        numberPlate.position.set(-0.5, 0.72, -0.58);
+        numberPlate.rotation.y = 0.15;
+        bike.add(numberPlate);
+
+        // Наклейка "ProGasi"
+        const decal = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.2, 0.06),
+            new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0xff2222, emissiveIntensity: 0.02 })
+        );
+        decal.position.set(-0.5, 0.78, -0.57);
+        decal.rotation.y = 0.15;
+        bike.add(decal);
+
+        // =========================================================================
+        //  ЗАЩИТА КАРТЕРА
+        // =========================================================================
+        const skid = new THREE.Mesh(
+            new THREE.BoxGeometry(0.55, 0.025, 0.32),
+            new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.6, roughness: 0.4 })
+        );
+        skid.position.set(0.0, 0.28, 0.05);
+        bike.add(skid);
+
+        // =========================================================================
+        //  ПОДНОЖКИ
+        // =========================================================================
+        for (let side = -1; side <= 1; side += 2) {
+            const peg = new THREE.Mesh(
+                new THREE.BoxGeometry(0.04, 0.02, 0.12),
+                mat.footpeg
+            );
+            peg.position.set(side * 0.35, 0.3, 0.25);
+            bike.add(peg);
+
+            const pegMount = new THREE.Mesh(
+                new THREE.BoxGeometry(0.02, 0.04, 0.02),
+                mat.frameDark
+            );
+            pegMount.position.set(side * 0.32, 0.3, 0.25);
+            bike.add(pegMount);
+        }
+
+        // =========================================================================
+        //  ЦЕПЬ
+        // =========================================================================
+        const chain = new THREE.Mesh(
+            new THREE.TorusGeometry(0.38, 0.015, 8, 16),
+            mat.chain
+        );
+        chain.rotation.y = Math.PI / 2;
+        chain.position.set(0.8, 0.2, 0.5);
+        bike.add(chain);
+
+        // Звезда
+        const sprocket = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.08, 0.08, 0.015, 12),
+            mat.sprocket
+        );
+        sprocket.rotation.x = Math.PI / 2;
+        sprocket.position.set(0.8, 0.2, 0.55);
+        bike.add(sprocket);
+
+        // =========================================================================
+        //  ЗАЩИТА РУК (краги)
+        // =========================================================================
+        for (let side = -1; side <= 1; side += 2) {
+            const handguard = new THREE.Mesh(
+                new THREE.BoxGeometry(0.02, 0.06, 0.12),
+                mat.plasticDark
+            );
+            handguard.position.set(side * 0.35, 0.94, -0.77);
+            handguard.rotation.z = 0.05 * side;
+            bike.add(handguard);
+
+            const guardBar = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.008, 0.008, 0.1, 4),
+                mat.guard
+            );
+            guardBar.position.set(side * 0.35, 0.92, -0.82);
+            guardBar.rotation.x = 0.1;
+            bike.add(guardBar);
+        }
+
+        scene.add(bike);
+
+        // ─── УПРАВЛЕНИЕ КНОПКАМИ ──────────────────────────────────────────────
+        const btnAutoRotate = document.getElementById('btnAutoRotate');
+        const btnReset = document.getElementById('btnReset');
+        const btnTop = document.getElementById('btnTop');
+        const btnSide = document.getElementById('btnSide');
+        const btnFront = document.getElementById('btnFront');
+
+        let autoRotateEnabled = true;
+
+        btnAutoRotate.addEventListener('click', () => {
+            autoRotateEnabled = !autoRotateEnabled;
+            controls.autoRotate = autoRotateEnabled;
+            btnAutoRotate.classList.toggle('active');
+            btnAutoRotate.textContent = autoRotateEnabled ? '⟳ Автовращение' : '⟳ Пауза';
+        });
+
+        btnReset.addEventListener('click', () => {
+            camera.position.set(5.0, 3.0, 6.5);
+            controls.target.set(0, 0.7, 0);
+            controls.update();
+        });
+
+        btnTop.addEventListener('click', () => {
+            camera.position.set(0, 6.0, 0.1);
+            controls.target.set(0, 0.7, 0);
+            controls.update();
+        });
+
+        btnSide.addEventListener('click', () => {
+            camera.position.set(6.0, 0.8, 0);
+            controls.target.set(0, 0.7, 0);
+            controls.update();
+        });
+
+        btnFront.addEventListener('click', () => {
+            camera.position.set(0, 0.8, 6.5);
+            controls.target.set(0, 0.7, 0);
+            controls.update();
+        });
+
+        // ─── АВТОВРАЩЕНИЕ МЫШКОЙ ──────────────────────────────────────────────
+        renderer.domElement.addEventListener('mouseenter', () => {
+            if (autoRotateEnabled) controls.autoRotate = false;
+        });
+        renderer.domElement.addEventListener('mouseleave', () => {
+            if (autoRotateEnabled) controls.autoRotate = true;
+        });
+        renderer.domElement.addEventListener('touchstart', () => {
+            if (autoRotateEnabled) controls.autoRotate = false;
+        });
+        renderer.domElement.addEventListener('touchend', () => {
+            if (autoRotateEnabled) {
+                setTimeout(() => { controls.autoRotate = true; }, 3000);
+            }
+        });
+
+        // ─── АНИМАЦИЯ ──────────────────────────────────────────────────────────
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // ─── РЕСАЙЗ ─────────────────────────────────────────────────────────────
+        window.addEventListener('resize', () => {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        });
+
+        console.log('🏍️ ProGasi SuperMax 300CC — высокодетализированная модель загружена!');
+        console.log('🔍 Детали: рама, двигатель, вилка, колёса, выхлоп, фары, защита');
+    </script>
+</body>
+</html>
