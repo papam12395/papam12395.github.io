@@ -1,17 +1,229 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой первый сайт</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Московское время</title>
+    <style>
+        /* ── сброс и базовые стили ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0b0e1a;
+            overflow: hidden;
+        }
+
+        /* ── холст для частиц ── */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ── карточка ── */
+        .clock-card {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 56px;
+            padding: 56px 64px 48px;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            min-width: 340px;
+            transition: transform 0.3s ease;
+        }
+
+        .clock-card:hover {
+            transform: scale(1.01);
+        }
+
+        /* ── город ── */
+        .city {
+            color: rgba(255, 255, 255, 0.35);
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        /* ── время ── */
+        .time {
+            font-size: 82px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 4px;
+            line-height: 1.1;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 60px rgba(100, 180, 255, 0.15);
+        }
+
+        .time .seconds {
+            font-size: 40px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.35);
+            margin-left: 6px;
+        }
+
+        /* ── дата ── */
+        .date {
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 16px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        /* ── адаптив ── */
+        @media (max-width: 500px) {
+            .clock-card {
+                padding: 40px 28px 36px;
+                min-width: auto;
+                width: 92%;
+                border-radius: 40px;
+            }
+            .time {
+                font-size: 56px;
+            }
+            .time .seconds {
+                font-size: 28px;
+            }
+            .city {
+                font-size: 11px;
+                letter-spacing: 4px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>🚀 Всё работает!</h1>
-    <p>Мой сайт на GitHub Pages успешно запущен.</p>
-    <p>Текущее время: <span id="time"></span></p>
+
+    <!-- холст для анимированных частиц -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- карточка с часами -->
+    <div class="clock-card">
+        <div class="city">Москва · MSK</div>
+        <div class="time" id="timeDisplay">
+            00:00<span class="seconds">:00</span>
+        </div>
+        <div class="date" id="dateDisplay">—</div>
+    </div>
 
     <script>
-        document.getElementById('time').textContent = new Date().toLocaleString();
+        // ─── ЧАСТИЦЫ НА ХОЛСТЕ ───────────────────────────────────────────────
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let W, H;
+        const particles = [];
+        const COUNT = 75;
+
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * W;
+                this.y = Math.random() * H;
+                this.r = Math.random() * 2.2 + 0.8;
+                this.speedX = (Math.random() - 0.5) * 0.35;
+                this.speedY = (Math.random() - 0.5) * 0.35;
+                this.opacity = Math.random() * 0.5 + 0.15;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > W) this.speedX *= -1;
+                if (this.y < 0 || this.y > H) this.speedY *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(160, 200, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < COUNT; i++) particles.push(new Particle());
+
+        function drawLines() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(120, 180, 255, ${0.08 * (1 - dist / 150)})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, W, H);
+            particles.forEach(p => { p.update(); p.draw(); });
+            drawLines();
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // ─── ЧАСЫ ПО МСК ──────────────────────────────────────────────────────
+        const timeDisplay = document.getElementById('timeDisplay');
+        const dateDisplay = document.getElementById('dateDisplay');
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+
+        function updateClock() {
+            const now = new Date();
+            // Московское время = UTC+3 (зимой и летом)
+            const msk = new Date(now.getTime() + (3 * 60 + now.getTimezoneOffset()) * 60000);
+
+            const h = pad(msk.getHours());
+            const m = pad(msk.getMinutes());
+            const s = pad(msk.getSeconds());
+
+            timeDisplay.innerHTML = `${h}:${m}<span class="seconds">:${s}</span>`;
+
+            const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+            const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+                'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+            ];
+            const d = msk.getDate();
+            const dayName = days[msk.getDay()];
+            const monthName = months[msk.getMonth()];
+            const year = msk.getFullYear();
+
+            dateDisplay.textContent = `${dayName}, ${d} ${monthName} ${year}`;
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
     </script>
+
 </body>
 </html>
