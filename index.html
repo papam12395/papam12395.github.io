@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Кликер: Арсений</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Арсений 🍔 толстеет</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,317 +12,407 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: linear-gradient(145deg, #1e2b3a 0%, #0f1722 100%);
+      background: linear-gradient(145deg, #2b1e10 0%, #1a130a 100%);
       display: flex;
       justify-content: center;
       align-items: center;
       font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-      padding: 16px;
+      padding: 12px;
     }
-    .game-card {
+    .game-container {
       max-width: 500px;
       width: 100%;
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(8px);
-      border-radius: 60px 60px 40px 40px;
-      padding: 30px 20px 35px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 215, 150, 0.15);
+      background: #2f2419;
+      background-image: radial-gradient(circle at 20% 30%, #4d3826, #1f160e);
+      border-radius: 72px 72px 48px 48px;
+      padding: 28px 18px 30px;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.8), 0 0 0 1px #b48b5a55;
       text-align: center;
       transition: 0.2s;
+      border: 1px solid #7a5d3e;
     }
     h1 {
-      margin: 0 0 8px 0;
-      font-weight: 600;
-      font-size: 2.2rem;
+      margin: 0 0 4px;
+      font-weight: 700;
+      font-size: 2.3rem;
       letter-spacing: 1px;
-      color: #fadfbc;
-      text-shadow: 0 4px 10px #a56b3b50, 0 0 0 1px #b48b5a;
-      word-break: break-word;
-    }
-    .subhead {
-      color: #b9c8d9;
-      font-weight: 400;
-      font-size: 1rem;
-      margin-bottom: 24px;
-      opacity: 0.9;
-      border-bottom: 1px dashed #7f8fa3;
-      padding-bottom: 10px;
+      color: #fbdeb4;
+      text-shadow: 0 4px 0 #6b4c2c, 0 8px 16px #00000077;
       display: flex;
+      align-items: center;
       justify-content: center;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .coin-display {
-      background: #1f2c39;
-      padding: 8px 22px;
-      border-radius: 50px;
-      border: 1px solid #eac394;
-      box-shadow: inset 0 2px 5px #0b0f14;
-      display: inline-flex;
-      align-items: center;
       gap: 10px;
-      font-weight: 600;
-      font-size: 1.8rem;
-      color: #ffddaa;
-    }
-    .coin-icon {
-      font-size: 2rem;
-      line-height: 1;
-      filter: drop-shadow(0 2px 4px #d9a343);
-    }
-    .avatar-wrapper {
-      position: relative;
-      margin: 20px auto 18px;
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #6f8a9e, #2b3f50);
-      box-shadow: 0 14px 28px #00000066, 0 0 0 4px #ddb582, 0 0 0 8px #3f2e1e;
-      transition: 0.1s ease;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .avatar-wrapper:active {
-      transform: scale(0.93);
-      box-shadow: 0 6px 14px #000000aa, 0 0 0 4px #f5d7a8, 0 0 0 8px #4d3822;
-    }
-    .avatar-emoji {
-      font-size: 130px;
-      line-height: 1;
-      filter: drop-shadow(0 8px 12px #0f1a1f);
-      transform: translateY(-8px);
-    }
-    .click-hint {
-      background: #2f4053;
-      color: #e0d6c0;
-      padding: 10px 16px;
-      border-radius: 80px;
-      font-size: 0.95rem;
-      display: inline-block;
-      margin: 6px 0 18px 0;
-      border: 1px solid #b49b7a;
-      backdrop-filter: blur(2px);
-      box-shadow: inset 0 1px 4px #617183;
-    }
-    .stats {
-      display: flex;
-      justify-content: center;
-      gap: 18px;
       flex-wrap: wrap;
-      margin: 16px 0 6px;
     }
-    .stat-badge {
-      background: #1e2b37;
-      padding: 6px 18px;
-      border-radius: 40px;
-      border: 1px solid #7c8b9b;
-      color: #d8d0c0;
+    .sub-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #1c150ecc;
+      backdrop-filter: blur(4px);
+      padding: 10px 18px;
+      border-radius: 60px;
+      margin: 10px 0 16px;
+      border: 1px solid #bd9a70;
+      box-shadow: inset 0 2px 6px #0a0704;
+      color: #f7e3c6;
       font-weight: 500;
-      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .stat {
+      display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 1rem;
-      backdrop-filter: blur(2px);
-    }
-    .reset-btn {
-      background: #2e4057;
-      border: none;
+      font-size: 1.3rem;
+      background: #2e1f13;
+      padding: 4px 16px 4px 12px;
       border-radius: 40px;
-      padding: 12px 30px;
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: #f2e3cc;
-      border: 1px solid #b29472;
-      box-shadow: 0 6px 0 #0d151e, 0 4px 12px #00000055;
-      transition: 0.08s linear;
-      cursor: pointer;
-      margin-top: 18px;
-      width: fit-content;
-      margin-left: auto;
-      margin-right: auto;
+      border: 1px solid #a8835a;
+    }
+    .stat span:last-child {
+      min-width: 2.4rem;
+      text-align: center;
+      color: #ffdba5;
+    }
+    .burger-counter {
+      background: #412f1d;
+      padding: 4px 18px 4px 14px;
+      border-radius: 60px;
+      border: 1px solid #dbb07c;
       display: flex;
       align-items: center;
+      gap: 8px;
+      font-size: 1.4rem;
+    }
+
+    /* Аватар с динамическим размером */
+    .avatar-wrap {
+      position: relative;
+      margin: 6px auto 8px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #d6b18a, #7a5a3a);
+      box-shadow: 0 18px 30px #000000aa, 0 0 0 5px #e1b888, 0 0 0 10px #4d3421;
+      transition: all 0.2s cubic-bezier(0.34, 1.2, 0.64, 1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      will-change: transform, width, height;
+    }
+    .avatar-wrap:active {
+      transform: scale(0.92);
+      box-shadow: 0 8px 16px #000000dd, 0 0 0 5px #fad7a0, 0 0 0 10px #5a3d26;
+    }
+    .avatar-emoji {
+      font-size: 110px;
+      line-height: 1;
+      filter: drop-shadow(0 8px 12px #281e13);
+      transition: font-size 0.2s ease;
+      transform: translateY(-4px);
+    }
+    /* шкала веса / толщины */
+    .weight-bar {
+      background: #2b1d13;
+      height: 14px;
+      border-radius: 40px;
+      margin: 12px 8px 8px;
+      border: 1px solid #b18a61;
+      overflow: hidden;
+      box-shadow: inset 0 3px 6px #0b0805;
+    }
+    .weight-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f5b56b, #e0843a, #c95f1e);
+      border-radius: 40px;
+      transition: width 0.25s ease-out;
+      box-shadow: 0 0 14px #f59f4a;
+    }
+    .burger-btn {
+      background: #d9a066;
+      border: none;
+      border-radius: 120px;
+      padding: 16px 18px;
+      font-weight: 700;
+      font-size: 1.7rem;
+      color: #2f1c0a;
+      background: linear-gradient(145deg, #f5c894, #d49a5a);
+      box-shadow: 0 8px 0 #7a521f, 0 10px 24px #00000066;
+      transition: 0.06s linear;
+      cursor: pointer;
+      margin: 14px auto 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      width: fit-content;
+      padding: 14px 36px;
+      border: 1px solid #ffdbb0;
+    }
+    .burger-btn:active {
+      transform: translateY(8px);
+      box-shadow: 0 1px 0 #7a521f;
+    }
+    .reset-btn {
+      background: #3d2e1d;
+      border: 1px solid #b18455;
+      border-radius: 60px;
+      padding: 10px 28px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #f2debc;
+      box-shadow: 0 5px 0 #1a1109;
+      transition: 0.06s linear;
+      cursor: pointer;
+      margin: 10px auto 0;
+      display: inline-flex;
+      align-items: center;
       gap: 10px;
-      letter-spacing: 0.5px;
     }
     .reset-btn:active {
-      transform: translateY(6px);
-      box-shadow: 0 1px 0 #0d151e;
-    }
-    .reset-btn:hover {
-      background: #3f5670;
-      border-color: #dbbd96;
+      transform: translateY(5px);
+      box-shadow: 0 1px 0 #1a1109;
     }
     .footer {
-      margin-top: 12px;
-      color: #73899b;
+      margin-top: 16px;
+      color: #b4956c;
       font-size: 0.8rem;
       letter-spacing: 0.3px;
+      border-top: 1px dashed #785d3d;
+      padding-top: 12px;
     }
-    /* анимация +монетка */
-    .coin-fly {
+    /* Летающие бургеры */
+    .burger-fly {
       position: fixed;
       pointer-events: none;
-      font-size: 2.2rem;
+      font-size: 2.6rem;
       font-weight: 700;
-      color: #fad87a;
-      text-shadow: 0 0 20px #ffb347, 0 0 8px #ff9100;
+      color: #f5c542;
+      text-shadow: 0 0 24px #ff8c00, 0 0 8px #c96800;
       z-index: 999;
-      animation: flyUp 0.9s ease-out forwards;
+      animation: flyBurger 1s ease-out forwards;
     }
-    @keyframes flyUp {
-      0% { opacity: 1; transform: translateY(0px) scale(0.8); }
-      100% { opacity: 0; transform: translateY(-180px) scale(1.4); }
+    @keyframes flyBurger {
+      0% { opacity: 1; transform: translateY(0px) scale(0.7) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(-200px) scale(1.3) rotate(15deg); }
     }
-    @media (max-width: 500px) {
-      .game-card { padding: 20px 12px; }
-      .avatar-wrapper { width: 170px; height: 170px; }
-      .avatar-emoji { font-size: 100px; }
-      .coin-display { font-size: 1.5rem; padding: 4px 16px; }
+    /* стадии толщины (доп. визуал) */
+    .fat-level {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 2px 0 6px;
+      font-size: 0.9rem;
+      color: #dbbd99;
+    }
+    @media (max-width: 480px) {
+      .avatar-wrap { width: 160px; height: 160px; }
+      .avatar-emoji { font-size: 85px; }
+      h1 { font-size: 1.8rem; }
+      .burger-btn { font-size: 1.4rem; padding: 12px 24px; }
     }
   </style>
 </head>
 <body>
-<div class="game-card">
-  <h1>🧑‍🌾 Арсений</h1>
-  <div class="subhead">
-    <span>💰 кликер</span>
-    <span class="coin-display">
-      <span class="coin-icon">🪙</span>
-      <span id="coinCounter">0</span>
-    </span>
+<div class="game-container">
+  <h1>
+    <span>🍔</span> Арсений <span>🐷</span>
+  </h1>
+
+  <div class="sub-header">
+    <div class="stat">
+      <span>🍟</span> <span id="burgerCount">0</span>
+    </div>
+    <div class="burger-counter">
+      <span>🍔</span> <span id="burgerEaten">0</span>
+    </div>
   </div>
 
-  <!-- Персонаж -->
-  <div class="avatar-wrapper" id="arseniyAvatar" role="button" aria-label="Кликни на Арсения">
-    <div class="avatar-emoji">🧑‍🌾</div>
+  <!-- Персонаж (кликабельный) -->
+  <div class="avatar-wrap" id="avatarWrap" role="button" aria-label="Покорми Арсения бургером">
+    <div class="avatar-emoji" id="avatarEmoji">🧑‍🍳</div>
   </div>
 
-  <div class="click-hint">
-    👆 Нажми на Арсения, чтобы заработать монету!
+  <!-- Шкала толщины (вес) -->
+  <div class="weight-bar">
+    <div class="weight-fill" id="weightFill" style="width: 0%;"></div>
   </div>
+  <div class="fat-level" id="fatLevelLabel">🥩 норма</div>
 
-  <div class="stats">
-    <span class="stat-badge">🎯 кликов: <span id="clickCount">0</span></span>
-    <span class="stat-badge">⚡ множитель: x1</span>
-  </div>
+  <!-- Кнопка "Съесть бургер" (дублирует клик) -->
+  <button class="burger-btn" id="burgerButton">
+    <span>🍔</span> Съесть бургер <span>🍔</span>
+  </button>
 
   <button class="reset-btn" id="resetButton">
-    <span>⟳</span> Сбросить прогресс
+    <span>🔄</span> Сбросить диету
   </button>
-  <div class="footer">✨ каждый клик = +1 🪙</div>
+  <div class="footer">Кликай на Арсения или на кнопку — он толстеет!</div>
 </div>
 
 <script>
   (function() {
     "use strict";
 
-    // ----- состояние -----
-    let coins = 0;
-    let totalClicks = 0;
+    // --- состояние ---
+    let burgers = 0;          // съедено бургеров
+    let weightPercent = 0;    // 0..100
 
-    // DOM-элементы
-    const coinCounterEl = document.getElementById('coinCounter');
-    const clickCountEl = document.getElementById('clickCount');
-    const avatar = document.getElementById('arseniyAvatar');
+    // максимальный "вес" для 100% (сколько бургеров до максимума)
+    const MAX_BURGERS = 25;
+
+    // DOM
+    const avatarWrap = document.getElementById('avatarWrap');
+    const avatarEmoji = document.getElementById('avatarEmoji');
+    const burgerCountEl = document.getElementById('burgerCount');
+    const burgerEatenEl = document.getElementById('burgerEaten');
+    const weightFill = document.getElementById('weightFill');
+    const fatLevelLabel = document.getElementById('fatLevelLabel');
+    const burgerButton = document.getElementById('burgerButton');
     const resetBtn = document.getElementById('resetButton');
 
-    // вспомогательная функция обновления UI
+    // --- обновление UI ---
     function updateUI() {
-      coinCounterEl.textContent = coins;
-      clickCountEl.textContent = totalClicks;
+      // счётчики
+      burgerEatenEl.textContent = burgers;
+      // процент веса (кап)
+      let percent = Math.min(100, (burgers / MAX_BURGERS) * 100);
+      weightPercent = Math.min(100, percent);
+      weightFill.style.width = weightPercent + '%';
+
+      // динамический размер аватара (от 160px до 260px)
+      const baseSize = 160;
+      const maxSize = 270;
+      const size = baseSize + (weightPercent / 100) * (maxSize - baseSize);
+      avatarWrap.style.width = size + 'px';
+      avatarWrap.style.height = size + 'px';
+
+      // меняем эмодзи и подпись стадии
+      let emoji = '🧑‍🍳';
+      let label = '🥩 стройный';
+      if (weightPercent < 15) {
+        emoji = '🧑‍🍳';
+        label = '🥩 поджарый';
+      } else if (weightPercent < 35) {
+        emoji = '👨‍🍳';
+        label = '🍔 в форме';
+      } else if (weightPercent < 55) {
+        emoji = '🧑‍🦰';
+        label = '🍟 аппетитный';
+      } else if (weightPercent < 75) {
+        emoji = '🧔‍♂️';
+        label = '🍔🍔 плотный';
+      } else if (weightPercent < 90) {
+        emoji = '👨‍🦱';
+        label = '🐷 солидный';
+      } else {
+        emoji = '🐷';
+        label = '🐷 АРСЕНИЙ ТОЛСТЯК!';
+      }
+      avatarEmoji.textContent = emoji;
+      fatLevelLabel.textContent = label;
+
+      // если дошли до 100% — особый статус
+      if (weightPercent >= 99.9) {
+        fatLevelLabel.textContent = '🐷💥 АРСЕНИЙ — БУРГЕР-МОНСТР!';
+        avatarEmoji.textContent = '🐷👑';
+      }
     }
 
-    // ----- анимация вылетающей монетки -----
-    function spawnCoinAnimation(x, y) {
+    // --- анимация летящего бургера ---
+    function spawnBurgerAnimation(x, y) {
       const fly = document.createElement('div');
-      fly.className = 'coin-fly';
-      fly.textContent = '🪙 +1';
-      // позиционируем около места клика (чуть выше)
+      fly.className = 'burger-fly';
+      fly.textContent = '🍔';
       fly.style.left = (x - 30) + 'px';
       fly.style.top = (y - 30) + 'px';
-      // случайный небольшой разброс
-      const offsetX = (Math.random() - 0.5) * 40;
-      const offsetY = (Math.random() - 0.5) * 30 - 10;
-      fly.style.setProperty('--dx', offsetX + 'px');
-      fly.style.setProperty('--dy', offsetY + 'px');
       document.body.appendChild(fly);
-
-      // удаляем после анимации
       setTimeout(() => {
         if (fly.parentNode) fly.remove();
-      }, 950);
+      }, 1050);
     }
 
-    // ----- обработчик клика по Арсению -----
-    function handleAvatarClick(e) {
-      // увеличиваем счётчики
-      coins += 1;
-      totalClicks += 1;
+    // --- покормить Арсения ---
+    function feedBurger(e) {
+      // увеличиваем счётчик
+      burgers = Math.min(burgers + 1, MAX_BURGERS + 5); // можно перекормить, но шкала 100%
       updateUI();
 
-      // получаем координаты для анимации (центр аватара или место клика)
+      // спавн анимации
       let clientX, clientY;
-      if (e.clientX && e.clientY) {
+      if (e && e.clientX !== undefined) {
         clientX = e.clientX;
         clientY = e.clientY;
       } else {
-        // fallback (если вдруг)
-        const rect = avatar.getBoundingClientRect();
+        // если вызов без события (кнопка) — по центру аватара
+        const rect = avatarWrap.getBoundingClientRect();
         clientX = rect.left + rect.width / 2;
         clientY = rect.top + rect.height / 2;
       }
-      spawnCoinAnimation(clientX, clientY);
+      spawnBurgerAnimation(clientX, clientY);
     }
 
-    // ----- сброс -----
+    // --- сброс (диета) ---
     function resetGame() {
-      if (coins === 0 && totalClicks === 0) {
-        // можно и так оставить, но пусть сбрасывается
-      }
-      coins = 0;
-      totalClicks = 0;
+      burgers = 0;
       updateUI();
+      // дополнительно: анимация сброса (мигание)
+      avatarWrap.style.transition = '0.15s';
+      avatarWrap.style.transform = 'scale(0.8)';
+      setTimeout(() => {
+        avatarWrap.style.transform = 'scale(1)';
+      }, 150);
     }
 
-    // ----- привязываем события -----
-    avatar.addEventListener('click', handleAvatarClick);
+    // --- обработчики ---
+
+    // 1. клик по аватару
+    avatarWrap.addEventListener('click', (e) => {
+      feedBurger(e);
+    });
+
+    // 2. клик по кнопке "Съесть бургер"
+    burgerButton.addEventListener('click', (e) => {
+      // передаём координаты кнопки для анимации
+      const rect = burgerButton.getBoundingClientRect();
+      feedBurger({
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top - 10
+      });
+    });
+
+    // 3. сброс
     resetBtn.addEventListener('click', resetGame);
 
-    // дополнительно: поддержка тач-событий для мобильных (без дублирования)
-    // так как click срабатывает и на тач, но чтобы избежать проблем с задержкой 300ms – ок
-    // также ловим touchstart, чтобы не было задержки (но click дублирует, поэтому блокируем дубли)
-    let touchFired = false;
-    avatar.addEventListener('touchstart', (e) => {
-      // если уже обработали touch, не даём click сработать дважды
-      if (touchFired) {
+    // --- поддержка тач (мобилы) без дублирования ---
+    let touchLock = false;
+    avatarWrap.addEventListener('touchstart', (e) => {
+      if (touchLock) {
         e.preventDefault();
         return;
       }
-      touchFired = true;
-      // эмулируем клик с координатами
+      touchLock = true;
       const touch = e.touches[0];
       if (touch) {
-        handleAvatarClick({ clientX: touch.clientX, clientY: touch.clientY });
+        feedBurger({ clientX: touch.clientX, clientY: touch.clientY });
       } else {
-        handleAvatarClick(e);
+        feedBurger(e);
       }
-      // сбрасываем флаг через короткое время
-      setTimeout(() => { touchFired = false; }, 100);
-      e.preventDefault();   // предотвращаем scroll/zoom
+      setTimeout(() => { touchLock = false; }, 120);
+      e.preventDefault();
     }, { passive: false });
 
-    // предотвращаем контекстное меню на аватаре (долгий тап)
-    avatar.addEventListener('contextmenu', (e) => e.preventDefault());
+    // отключаем контекстное меню на аватаре
+    avatarWrap.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    // Стартовый UI
+    // инициализация
     updateUI();
 
-    // бонус: если кто-то кликнет на кнопку сброса – никаких лишних действий
-    // дополнительно сброс по двойному клику? не надо
+    // дополнительный фикс: если кликнуть по кнопке сброса — не дублировать
+    // всё ок
   })();
 </script>
 </body>
