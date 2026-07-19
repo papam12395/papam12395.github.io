@@ -155,16 +155,18 @@
         canvas.width = W; canvas.height = H;
 
         // --- Игровые константы ---
-        const GRAVITY = 0.55;
-        const JUMP_FORCE = -9.2;
-        const GROUND_Y = 340;        // линия пола (y координата)
+        const GRAVITY = 0.6;
+        const JUMP_FORCE = -9.8;
+        const GROUND_Y = 340;
         const PLAYER_SIZE = 28;
-        const PLAYER_X = 100;
+        const PLAYER_X = 100;        // фиксированная позиция по X
+        const SPEED = 4.2;           // скорость движения уровня
 
         // --- состояния ---
         let gameState = 'idle';       // idle, playing, dead, win
         let currentLevel = 1;
-        let score = 0;               // количество пройденных препятствий
+        let score = 0;
+        let gameSpeed = SPEED;
 
         // --- игрок ---
         const player = {
@@ -176,38 +178,38 @@
             onGround: true
         };
 
-        // --- препятствия / платформы ---
+        // --- препятствия ---
         let obstacles = [];
-        let levelLength = 0;          // для генерации
+        let levelLength = 0;
+        let worldOffset = 0;          // сдвиг мира (бесконечная прокрутка)
 
         // --- флаги ---
         let gameOver = false;
         let winFlag = false;
 
-        // --- таймер анимации ---
+        // --- таймер ---
         let animId = null;
 
         // ---- ГЕНЕРАЦИЯ УРОВНЯ ----
         function generateLevel(level) {
             obstacles = [];
-            const baseCount = 8 + level * 2;   // сложность растёт
+            const baseCount = 8 + level * 2;
             const maxCount = Math.min(22, baseCount);
-            const spacing = 60 + Math.max(0, 10 - level * 0.8); // дистанция между препятствиями
+            const spacing = 70 + Math.max(0, 12 - level * 0.7);
 
             let x = 200;
             for (let i = 0; i < maxCount; i++) {
-                // тип: 0 - обычный куб (наземный), 1 - летающий куб (средний), 2 - платформа (снизу)
                 let type = 0;
                 let yOffset = 0;
                 let w = 20, h = 20;
                 const r = Math.random();
 
                 if (level > 1 && r < 0.25) {
-                    type = 1; // летающий
+                    type = 1;
                     yOffset = -50 - Math.random() * 40;
                     w = 18; h = 18;
                 } else if (level > 2 && r < 0.15) {
-                    type = 2; // платформа (низкая, надо перепрыгнуть)
+                    type = 2;
                     yOffset = 0;
                     w = 35; h = 14;
                 } else {
@@ -216,9 +218,7 @@
                     h = 20 + (level > 2 ? 6 : 0);
                 }
 
-                // случайный сдвиг по Y для разнообразия
                 if (type === 0) {
-                    // наземный, иногда чуть выше
                     yOffset = -Math.random() * 8;
                 }
 
@@ -229,13 +229,13 @@
                     w: w,
                     h: h,
                     type: type,
-                    passed: false,    // для подсчёта очков
+                    passed: false,
                     originalY: baseY
                 });
                 x += spacing + 30 + Math.random() * 35;
             }
 
-            // финишная линия (последний объект - флажок)
+            // финиш
             obstacles.push({
                 x: x + 60,
                 y: GROUND_Y - 50,
@@ -246,7 +246,7 @@
             });
 
             levelLength = x + 120;
-            // сброс счётчика прохождения
+            worldOffset = 0;
             score = 0;
             updateScoreUI();
         }
@@ -259,7 +259,7 @@
             player.onGround = true;
         }
 
-        // --- инициализация уровня ---
+        // --- инициализация ---
         function initLevel(level) {
             currentLevel = Math.min(10, Math.max(1, level));
             levelDisplay.textContent = currentLevel;
@@ -272,7 +272,6 @@
             updateScoreUI();
         }
 
-        // --- UI счёт ---
         function updateScoreUI() {
             scoreDisplay.textContent = score;
         }
@@ -294,21 +293,44 @@
                 player.onGround = false;
             }
 
-            // проверка столкновений с препятствиями
+            // ДВИЖЕНИЕ МИРА (кубик стоит на месте, всё едет влево)
+            worldOffset += gameSpeed;
+
+            // проверка столкновений
             for (let obs of obstacles) {
+                // смещаем препятствие относительно мира
+                const obsX = obs.x - worldOffset;
+
+                // если препятствие уехало далеко влево — пропускаем
+                if (obsX + obs.w < -50) continue;
+
+                // если препятствие справа далеко — пропускаем
+                if (obsX > W + 50) continue;
+
+                // коллизия с игроком (игрок неподвижен по X)
+                const playerBox = {
+                    x: player.x,
+                    y: player.y,
+                    w: player.w,
+                    h: player.h
+                };
+                const obsBox = {
+                    x: obsX,
+                    y: obs.y,
+                    w: obs.w,
+                    h: obs.h
+                };
+
                 if (obs.type === 'finish') {
-                    // финиш: проверяем пересечение
-                    if (rectCollide(player, obs)) {
-                        // победа!
+                    if (rectCollide(playerBox, obsBox)) {
                         if (!winFlag) {
                             winFlag = true;
                             gameState = 'win';
                             statusMsg.textContent = '🎉 УРОВЕНЬ ПРОЙДЕН! Нажми "Уровень +"';
                         }
-                        continue;
                     }
-                    // если игрок прошёл финиш (по x) и не было победы — засчитываем
-                    if (player.x + player.w > obs.x && !winFlag && !obs.passed) {
+                    // засчитываем прохождение финиша
+                    if (player.x + player.w > obsX && !winFlag && !obs.passed) {
                         obs.passed = true;
                         score += 1;
                         updateScoreUI();
@@ -316,23 +338,23 @@
                     continue;
                 }
 
-                // обычные препятствия
-                if (rectCollide(player, obs)) {
+                // столкновение с препятствием
+                if (rectCollide(playerBox, obsBox)) {
                     gameOver = true;
                     gameState = 'dead';
                     statusMsg.textContent = '💀 Ты врезался! Нажми Рестарт';
                     return;
                 }
 
-                // подсчёт очков за прохождение препятствия (если не финиш)
-                if (!obs.passed && player.x > obs.x + obs.w + 10) {
+                // очки за прохождение
+                if (!obs.passed && player.x > obsX + obs.w + 10) {
                     obs.passed = true;
                     score += 1;
                     updateScoreUI();
                 }
             }
 
-            // вылет за левую/правую границу (смерть)
+            // проверка вылета за границы
             if (player.x + player.w < 0 || player.x > 780) {
                 gameOver = true;
                 gameState = 'dead';
@@ -340,7 +362,6 @@
             }
         }
 
-        // --- столкновение прямоугольников ---
         function rectCollide(a, b) {
             return a.x < b.x + b.w &&
                 a.x + a.w > b.x &&
@@ -351,10 +372,8 @@
         // --- прыжок ---
         function jump() {
             if (gameState === 'idle') {
-                // старт игры
                 gameState = 'playing';
                 statusMsg.textContent = '🎮 Играем!';
-                // разрешаем прыжок
                 if (player.onGround) {
                     player.vy = JUMP_FORCE;
                     player.onGround = false;
@@ -365,7 +384,6 @@
                 player.vy = JUMP_FORCE;
                 player.onGround = false;
             }
-            // если dead или win — игнорируем прыжок
         }
 
         // --- ОТРИСОВКА ---
@@ -384,7 +402,6 @@
             ctx.fillRect(0, GROUND_Y, W, 6);
             ctx.fillStyle = '#3c5a74';
             ctx.fillRect(0, GROUND_Y + 6, W, 12);
-            // декоративные линии
             ctx.strokeStyle = '#5a7a94';
             ctx.lineWidth = 1;
             for (let i = 0; i < W; i += 45) {
@@ -394,43 +411,43 @@
                 ctx.stroke();
             }
 
-            // препятствия
+            // препятствия (с учётом смещения)
             for (let obs of obstacles) {
+                const obsX = obs.x - worldOffset;
+                if (obsX + obs.w < -50 || obsX > W + 50) continue;
+
                 if (obs.type === 'finish') {
-                    // флажок
                     ctx.fillStyle = '#f5c542';
-                    ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+                    ctx.fillRect(obsX, obs.y, obs.w, obs.h);
                     ctx.fillStyle = '#f0e68c';
                     ctx.beginPath();
-                    ctx.moveTo(obs.x + obs.w, obs.y + 4);
-                    ctx.lineTo(obs.x + obs.w + 18, obs.y + 12);
-                    ctx.lineTo(obs.x + obs.w, obs.y + 22);
+                    ctx.moveTo(obsX + obs.w, obs.y + 4);
+                    ctx.lineTo(obsX + obs.w + 18, obs.y + 12);
+                    ctx.lineTo(obsX + obs.w, obs.y + 22);
                     ctx.fill();
                     ctx.fillStyle = '#ffdd99';
                     ctx.font = 'bold 14px sans-serif';
-                    ctx.fillText('🏁', obs.x - 8, obs.y - 6);
+                    ctx.fillText('🏁', obsX - 8, obs.y - 6);
                     continue;
                 }
 
-                // цвет в зависимости от типа
                 if (obs.type === 1) {
-                    ctx.fillStyle = '#d48f5b'; // летающий
+                    ctx.fillStyle = '#d48f5b';
                 } else if (obs.type === 2) {
-                    ctx.fillStyle = '#6a9ec7'; // платформа
+                    ctx.fillStyle = '#6a9ec7';
                 } else {
                     ctx.fillStyle = '#b0b8c0';
                 }
                 ctx.shadowColor = '#00000066';
                 ctx.shadowBlur = 12;
-                ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+                ctx.fillRect(obsX, obs.y, obs.w, obs.h);
                 ctx.shadowBlur = 0;
-                // обводка
                 ctx.strokeStyle = '#e0eaf5';
                 ctx.lineWidth = 1.5;
-                ctx.strokeRect(obs.x, obs.y, obs.w, obs.h);
+                ctx.strokeRect(obsX, obs.y, obs.w, obs.h);
             }
 
-            // игрок
+            // игрок (всегда на месте)
             ctx.shadowColor = '#8ab3d0';
             ctx.shadowBlur = 20;
             ctx.fillStyle = '#7fc1f0';
@@ -455,7 +472,7 @@
             ctx.arc(player.x + 20, player.y + 8, 2, 0, Math.PI * 2);
             ctx.fill();
 
-            // текущий уровень / счёт на канвасе
+            // информация
             ctx.fillStyle = '#d0dcee';
             ctx.font = 'bold 16px monospace';
             ctx.fillText(`УРОВЕНЬ ${currentLevel}`, 20, 40);
@@ -477,28 +494,25 @@
             animId = requestAnimationFrame(gameLoop);
         }
 
-        // --- ЗАПУСК / перезапуск ---
+        // --- перезапуск ---
         function restartLevel() {
             initLevel(currentLevel);
-            // принудительно ставим playing, если был dead/win
             if (gameState === 'dead' || gameState === 'win' || gameState === 'idle') {
                 gameState = 'playing';
                 statusMsg.textContent = '🎮 Играем!';
             }
         }
 
-        // --- ОБРАБОТЧИКИ ---
+        // --- обработчики ---
         function handleJump(e) {
             if (e) e.preventDefault();
             jump();
         }
 
-        // --- события ---
         document.addEventListener('keydown', (e) => {
             if (e.key === ' ' || e.key === 'Space') {
                 e.preventDefault();
                 if (gameState === 'dead' || gameState === 'win') {
-                    // можно рестартнуть по пробелу
                     restartLevel();
                 } else {
                     handleJump(e);
@@ -514,7 +528,6 @@
             }
         });
 
-        // тач
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (gameState === 'dead' || gameState === 'win') {
@@ -524,7 +537,6 @@
             }
         }, { passive: false });
 
-        // кнопки
         restartBtn.addEventListener('click', () => {
             restartLevel();
         });
@@ -533,20 +545,16 @@
             let next = currentLevel + 1;
             if (next > 10) next = 1;
             initLevel(next);
-            // автозапуск
             gameState = 'playing';
             statusMsg.textContent = '🎮 Новый уровень!';
         });
 
-        // --- инициализация ---
+        // --- старт ---
         initLevel(1);
         gameState = 'idle';
         statusMsg.textContent = '▶ Нажми пробел / клик, чтобы стартовать';
-        // запуск цикла
         if (animId) cancelAnimationFrame(animId);
         gameLoop();
-
-        // дополнительно: ресайз канваса не меняем
     })();
 </script>
 </body>
