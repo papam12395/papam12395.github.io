@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ProGasi SuperMax 300CC — 3D Эндуро</title>
+    <title>ProGasi SuperMax 300CC — 3D</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             background: #070a14;
             color: #fff;
@@ -19,69 +18,61 @@
             height: 100vh;
             user-select: none;
         }
-
         #canvas-container {
             width: 100vw;
             height: 100vh;
             display: block;
         }
-
-        /* ─── ИНФО-ПАНЕЛЬ ─── */
         .info {
             position: fixed;
-            bottom: 30px;
+            bottom: 28px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
             text-align: center;
-            background: rgba(7, 10, 20, 0.65);
+            background: rgba(7, 10, 20, 0.7);
             backdrop-filter: blur(16px);
-            padding: 16px 40px 18px;
+            padding: 14px 36px 16px;
             border-radius: 50px;
             border: 1px solid rgba(255, 255, 255, 0.04);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
             pointer-events: none;
             width: 92%;
-            max-width: 560px;
+            max-width: 500px;
         }
-
         .info h1 {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
             letter-spacing: 2px;
-            background: linear-gradient(135deg, #6ab0ff, #2a6aaa);
+            background: linear-gradient(135deg, #ff4444, #cc2222);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .info p {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: rgba(255, 255, 255, 0.2);
             letter-spacing: 3px;
             text-transform: uppercase;
             margin-top: 2px;
         }
-
-        /* ─── ПОДСКАЗКА ─── */
         .hint {
             position: fixed;
-            top: 24px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
-            color: rgba(255, 255, 255, 0.08);
-            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.06);
+            font-size: 0.6rem;
             letter-spacing: 2px;
             text-transform: uppercase;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 6px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px 18px;
             border-radius: 30px;
             backdrop-filter: blur(4px);
             border: 1px solid rgba(255, 255, 255, 0.02);
             pointer-events: none;
             animation: pulse 3s ease-in-out infinite;
         }
-
         @keyframes pulse {
             0%,
             100% {
@@ -91,74 +82,30 @@
                 opacity: 0.8;
             }
         }
-
-        /* ─── СПИСОК ДЕТАЛЕЙ (справа) ─── */
-        .parts-list {
-            position: fixed;
-            right: 24px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            pointer-events: none;
-        }
-
-        .parts-list span {
-            font-size: 0.55rem;
-            letter-spacing: 1px;
-            color: rgba(255, 255, 255, 0.08);
-            text-transform: uppercase;
-            text-align: right;
-            transition: color 0.4s;
-        }
-
-        .parts-list span.active {
-            color: rgba(100, 180, 255, 0.6);
-        }
-
         @media (max-width: 640px) {
-            .parts-list {
-                display: none;
-            }
             .info {
-                padding: 12px 20px 14px;
+                padding: 10px 16px 12px;
                 bottom: 16px;
             }
             .info h1 {
-                font-size: 1rem;
+                font-size: 0.95rem;
             }
             .hint {
-                top: 12px;
-                font-size: 0.5rem;
-                padding: 4px 12px;
+                top: 10px;
+                font-size: 0.45rem;
+                padding: 4px 10px;
             }
         }
     </style>
 </head>
 <body>
-
     <div id="canvas-container"></div>
-
-    <div class="hint">🖱️ Тяни · 🔄 Вращай · 🔍 Скролл для зума</div>
-
-    <div class="parts-list">
-        <span data-part="engine">⚡ Двигатель</span>
-        <span data-part="wheel_f">🛞 Колесо 21"</span>
-        <span data-part="wheel_r">🛞 Колесо 18"</span>
-        <span data-part="seat">🪑 Сиденье</span>
-        <span data-part="tank">⛽ Бак</span>
-        <span data-part="light">💡 Фара</span>
-        <span data-part="exhaust">🔥 Выхлоп</span>
-    </div>
-
+    <div class="hint">🖱️ Тяни · 🔄 Вращай · 🔍 Скролл</div>
     <div class="info">
-        <h1>🏍️ ProGasi SuperMax 300CC</h1>
+        <h1>🔥 ProGasi SuperMax 300CC</h1>
         <p>Enduro · 2-тактный · 2025</p>
     </div>
 
-    <!-- ─── THREE.JS ─────────────────────────────────────────────────────────── -->
     <script type="importmap">
         {
             "imports": {
@@ -172,16 +119,13 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // ─── СЦЕНА ──────────────────────────────────────────────────────────────
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x070a14);
 
-        // ─── КАМЕРА ─────────────────────────────────────────────────────────────
-        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 30);
-        camera.position.set(4.5, 2.8, 5.5);
-        camera.lookAt(0, 0.6, 0);
+        const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 30);
+        camera.position.set(4.5, 2.8, 6.0);
+        camera.lookAt(0, 0.7, 0);
 
-        // ─── РЕНДЕРЕР ──────────────────────────────────────────────────────────
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -191,23 +135,22 @@
         renderer.toneMappingExposure = 1.0;
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // ─── УПРАВЛЕНИЕ ────────────────────────────────────────────────────────
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.08;
         controls.autoRotate = true;
-        controls.autoRotateSpeed = 1.0;
-        controls.minDistance = 2.0;
+        controls.autoRotateSpeed = 0.8;
+        controls.minDistance = 2.5;
         controls.maxDistance = 12;
-        controls.target.set(0, 0.6, 0);
+        controls.target.set(0, 0.7, 0);
         controls.update();
 
-        // ─── ОСВЕЩЕНИЕ ──────────────────────────────────────────────────────────
-        const ambient = new THREE.AmbientLight(0x223355, 0.5);
+        // ─── СВЕТ ──────────────────────────────────────────────────────────────
+        const ambient = new THREE.AmbientLight(0x224466, 0.5);
         scene.add(ambient);
 
         const main = new THREE.DirectionalLight(0xffeedd, 3.0);
-        main.position.set(6, 10, 8);
+        main.position.set(5, 10, 7);
         main.castShadow = true;
         main.shadow.mapSize.width = 1024;
         main.shadow.mapSize.height = 1024;
@@ -227,119 +170,126 @@
         rim.position.set(-3, 1, 6);
         scene.add(rim);
 
-        // ─── ПОЛ ────────────────────────────────────────────────────────────────
+        // ─── ПОЛ ──────────────────────────────────────────────────────────────
         const floor = new THREE.Mesh(
-            new THREE.CircleGeometry(6, 32),
+            new THREE.CircleGeometry(5, 32),
             new THREE.MeshStandardMaterial({ color: 0x0d1220, roughness: 0.9, metalness: 0.1, transparent: true,
-                opacity: 0.6 })
+                opacity: 0.4 })
         );
         floor.rotation.x = -Math.PI / 2;
         floor.position.y = -0.01;
         floor.receiveShadow = true;
         scene.add(floor);
 
-        // ─── МАТЕРИАЛЫ ──────────────────────────────────────────────────────────
+        // ─── МАТЕРИАЛЫ ────────────────────────────────────────────────────────
         const m = {
-            frame: new THREE.MeshStandardMaterial({ color: 0x2a3a5a, metalness: 0.7, roughness: 0.3 }),
-            frameDark: new THREE.MeshStandardMaterial({ color: 0x1a2a3a, metalness: 0.6, roughness: 0.4 }),
-            plastic: new THREE.MeshStandardMaterial({ color: 0x1a3a5a, metalness: 0.1, roughness: 0.8 }),
-            plasticRed: new THREE.MeshStandardMaterial({ color: 0x8a2a1a, metalness: 0.15, roughness: 0.6 }),
-            plasticBlue: new THREE.MeshStandardMaterial({ color: 0x1a3a7a, metalness: 0.2, roughness: 0.5 }),
-            engine: new THREE.MeshStandardMaterial({ color: 0x4a5a6a, metalness: 0.9, roughness: 0.2 }),
-            gold: new THREE.MeshStandardMaterial({ color: 0xcc8822, metalness: 0.6, roughness: 0.3 }),
-            tire: new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.95, metalness: 0.0 }),
-            rim: new THREE.MeshStandardMaterial({ color: 0x3a4a5a, metalness: 0.8, roughness: 0.2 }),
+            frame: new THREE.MeshStandardMaterial({ color: 0xcc2222, metalness: 0.3, roughness: 0.5 }),
+            frameDark: new THREE.MeshStandardMaterial({ color: 0x881111, metalness: 0.4, roughness: 0.5 }),
+            plastic: new THREE.MeshStandardMaterial({ color: 0xeeeeee, metalness: 0.0, roughness: 0.6 }),
+            plasticRed: new THREE.MeshStandardMaterial({ color: 0xdd2222, metalness: 0.1, roughness: 0.5 }),
+            plasticBlue: new THREE.MeshStandardMaterial({ color: 0x1a3a7a, metalness: 0.1, roughness: 0.5 }),
+            engine: new THREE.MeshStandardMaterial({ color: 0x6a7a8a, metalness: 0.9, roughness: 0.2 }),
+            gold: new THREE.MeshStandardMaterial({ color: 0xcc8833, metalness: 0.6, roughness: 0.3 }),
+            tire: new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.95, metalness: 0.0 }),
+            rim: new THREE.MeshStandardMaterial({ color: 0x4a5a6a, metalness: 0.8, roughness: 0.2 }),
             seat: new THREE.MeshStandardMaterial({ color: 0x1a0e08, roughness: 0.9, metalness: 0.0 }),
             fork: new THREE.MeshStandardMaterial({ color: 0x8a9aaa, metalness: 0.9, roughness: 0.15 }),
             handlebar: new THREE.MeshStandardMaterial({ color: 0x6a7a8a, metalness: 0.8, roughness: 0.2 }),
-            exhaust: new THREE.MeshStandardMaterial({ color: 0x5a4a3a, metalness: 0.6, roughness: 0.5 }),
-            light: new THREE.MeshStandardMaterial({ color: 0xffeedd, emissive: 0xffeeaa, emissiveIntensity: 0.2 }),
+            exhaust: new THREE.MeshStandardMaterial({ color: 0x6a5a4a, metalness: 0.6, roughness: 0.4 }),
+            light: new THREE.MeshStandardMaterial({ color: 0xffeedd, emissive: 0xffeeaa, emissiveIntensity: 0.3 }),
             grip: new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 }),
+            decal: new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x4488ff, emissiveIntensity: 0.02 }),
+            forkTube: new THREE.MeshStandardMaterial({ color: 0xcc8833, metalness: 0.7, roughness: 0.2 }),
         };
 
         // ─── МОТОЦИКЛ ──────────────────────────────────────────────────────────
         const bike = new THREE.Group();
         bike.position.y = 0;
 
-        // === РАМА ===
-        const frame = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.16, 0.28), m.frame);
-        frame.position.set(0, 0.7, 0);
-        bike.add(frame);
+        // ===== РАМА (красная) =====
+        const mainFrame = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.14, 0.2), m.frame);
+        mainFrame.position.set(0, 0.75, 0);
+        bike.add(mainFrame);
 
-        // подседельная труба
-        const seatTube = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.8, 8), m.frame);
-        seatTube.position.set(-0.2, 0.6, 0.5);
-        seatTube.rotation.x = 0.35;
+        // Подседельная труба
+        const seatTube = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.8, 8), m.frame);
+        seatTube.position.set(-0.15, 0.6, 0.5);
+        seatTube.rotation.x = 0.4;
         bike.add(seatTube);
 
-        // верхняя труба
-        const topTube = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.065, 0.65, 8), m.frame);
-        topTube.position.set(0.15, 0.82, -0.3);
-        topTube.rotation.x = -0.25;
-        topTube.rotation.z = 0.08;
+        // Верхняя труба
+        const topTube = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.65, 8), m.frame);
+        topTube.position.set(0.1, 0.85, -0.3);
+        topTube.rotation.x = -0.3;
+        topTube.rotation.z = 0.05;
         bike.add(topTube);
 
-        // нижняя труба
-        const downTube = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.6, 8), m.frame);
-        downTube.position.set(0.1, 0.45, -0.3);
-        downTube.rotation.x = -0.2;
+        // Нижняя труба
+        const downTube = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.6, 8), m.frame);
+        downTube.position.set(0.05, 0.5, -0.3);
+        downTube.rotation.x = -0.25;
         bike.add(downTube);
 
-        // === ДВИГАТЕЛЬ ===
-        const engine = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.38, 0.4), m.engine);
-        engine.position.set(0.0, 0.48, 0.02);
+        // ===== ДВИГАТЕЛЬ =====
+        const engine = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.38, 0.4), m.engine);
+        engine.position.set(0.0, 0.5, 0.02);
         bike.add(engine);
 
-        // цилиндр
-        const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.3, 12), m.engine);
-        cyl.position.set(0.0, 0.72, 0.05);
-        bike.add(cyl);
+        // Цилиндр
+        const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.3, 12), m.engine);
+        cylinder.position.set(0.0, 0.72, 0.05);
+        bike.add(cylinder);
 
-        // головка
-        const head = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.08, 12), m.gold);
+        // Головка (золотая)
+        const head = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.07, 12), m.gold);
         head.position.set(0.0, 0.88, 0.05);
         bike.add(head);
 
-        // крышка двигателя (декоративная)
-        const cover = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.18, 0.04, 16), m.gold);
+        // Крышка двигателя
+        const cover = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.17, 0.035, 16), m.gold);
         cover.rotation.x = Math.PI / 2;
-        cover.position.set(0.3, 0.48, 0.22);
+        cover.position.set(0.28, 0.5, 0.2);
         bike.add(cover);
 
-        // === ВИЛКА ===
-        const forkL = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.65, 8), m.fork);
-        forkL.position.set(0.38, 0.5, -0.45);
+        // ===== ВИЛКА (золотая) =====
+        const forkL = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.7, 8), m.forkTube);
+        forkL.position.set(0.38, 0.55, -0.5);
         bike.add(forkL);
 
-        const forkR = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.65, 8), m.fork);
-        forkR.position.set(-0.38, 0.5, -0.45);
+        const forkR = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.7, 8), m.forkTube);
+        forkR.position.set(-0.38, 0.55, -0.5);
         bike.add(forkR);
 
-        // траверса
-        const triple = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.055, 0.12), m.frameDark);
-        triple.position.set(0, 0.82, -0.45);
-        bike.add(triple);
+        // Траверса верхняя
+        const tripleTop = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.05, 0.1), m.frameDark);
+        tripleTop.position.set(0, 0.85, -0.5);
+        bike.add(tripleTop);
 
-        // === РУЛЬ ===
-        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.65, 8), m.handlebar);
-        bar.position.set(0, 0.9, -0.7);
-        bar.rotation.x = 0.15;
-        bar.rotation.z = 0.08;
+        // Траверса нижняя
+        const tripleBottom = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.05, 0.1), m.frameDark);
+        tripleBottom.position.set(0, 0.6, -0.5);
+        bike.add(tripleBottom);
+
+        // ===== РУЛЬ =====
+        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.6, 8), m.handlebar);
+        bar.position.set(0, 0.92, -0.75);
+        bar.rotation.x = 0.1;
+        bar.rotation.z = 0.05;
         bike.add(bar);
 
-        // грипсы
-        const gL = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.042, 0.07, 8), m.grip);
-        gL.position.set(0.32, 0.9, -0.72);
-        gL.rotation.x = 0.15;
-        bike.add(gL);
+        // Грипсы
+        const gripL = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.037, 0.06, 8), m.grip);
+        gripL.position.set(0.3, 0.92, -0.77);
+        gripL.rotation.x = 0.1;
+        bike.add(gripL);
 
-        const gR = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.042, 0.07, 8), m.grip);
-        gR.position.set(-0.32, 0.9, -0.72);
-        gR.rotation.x = 0.15;
-        bike.add(gR);
+        const gripR = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.037, 0.06, 8), m.grip);
+        gripR.position.set(-0.3, 0.92, -0.77);
+        gripR.rotation.x = 0.1;
+        bike.add(gripR);
 
-        // === КОЛЁСА ===
-        function makeWheel(x, z, scale = 1) {
+        // ===== КОЛЁСА =====
+        function createWheel(x, z, scale = 1) {
             const g = new THREE.Group();
 
             const tire = new THREE.Mesh(
@@ -350,23 +300,24 @@
             g.add(tire);
 
             const rim = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.28 * scale, 0.28 * scale, 0.055 * scale, 16),
+                new THREE.CylinderGeometry(0.27 * scale, 0.27 * scale, 0.05 * scale, 16),
                 m.rim
             );
             rim.rotation.x = Math.PI / 2;
             g.add(rim);
 
-            for (let i = 0; i < 4; i++) {
+            // Спицы (6)
+            for (let i = 0; i < 6; i++) {
                 const spoke = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.32 * scale, 0.012 * scale, 0.012 * scale),
+                    new THREE.BoxGeometry(0.32 * scale, 0.01 * scale, 0.01 * scale),
                     m.rim
                 );
-                spoke.rotation.z = (i * Math.PI) / 4;
+                spoke.rotation.z = (i * Math.PI) / 6;
                 g.add(spoke);
             }
 
             const hub = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.07 * scale, 0.07 * scale, 0.07 * scale, 12),
+                new THREE.CylinderGeometry(0.06 * scale, 0.06 * scale, 0.06 * scale, 12),
                 m.gold
             );
             hub.rotation.x = Math.PI / 2;
@@ -376,80 +327,80 @@
             return g;
         }
 
-        bike.add(makeWheel(0.85, 0.5, 1.0));
-        bike.add(makeWheel(-0.85, -0.55, 1.0));
+        bike.add(createWheel(0.85, 0.55, 1.0));
+        bike.add(createWheel(-0.85, -0.6, 1.0));
 
-        // === ПЕРЕДНЕЕ КРЫЛО ===
-        const fenderF = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.04, 0.85), m.plastic);
-        fenderF.position.set(-0.65, 0.32, -0.5);
-        fenderF.rotation.x = 0.08;
+        // ===== КРЫЛЬЯ (белые) =====
+        const fenderF = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.035, 0.85), m.plastic);
+        fenderF.position.set(-0.7, 0.32, -0.55);
+        fenderF.rotation.x = 0.05;
         bike.add(fenderF);
 
-        // === ЗАДНЕЕ КРЫЛО ===
-        const fenderR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.04, 0.75), m.plastic);
-        fenderR.position.set(0.65, 0.32, 0.5);
-        fenderR.rotation.x = -0.08;
+        const fenderR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.035, 0.75), m.plastic);
+        fenderR.position.set(0.7, 0.32, 0.55);
+        fenderR.rotation.x = -0.05;
         bike.add(fenderR);
 
-        // === СИДЕНЬЕ ===
-        const seat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.38), m.seat);
-        seat.position.set(0.15, 0.78, 0.48);
-        seat.rotation.x = 0.12;
+        // ===== СИДЕНЬЕ (чёрное) =====
+        const seat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.09, 0.38), m.seat);
+        seat.position.set(0.12, 0.82, 0.5);
+        seat.rotation.x = 0.1;
         bike.add(seat);
 
-        // === ТОПЛИВНЫЙ БАК ===
-        const tank = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 12), m.plasticBlue);
-        tank.scale.set(1.2, 0.55, 0.8);
-        tank.position.set(-0.08, 0.78, -0.18);
+        // ===== ТОПЛИВНЫЙ БАК (красный) =====
+        const tank = new THREE.Mesh(new THREE.SphereGeometry(0.23, 12, 12), m.plasticRed);
+        tank.scale.set(1.2, 0.5, 0.75);
+        tank.position.set(-0.06, 0.8, -0.2);
         bike.add(tank);
 
-        // накладка на бак (декор)
-        const tankDeco = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), m.plasticRed);
-        tankDeco.scale.set(0.6, 0.3, 0.5);
-        tankDeco.position.set(-0.08, 0.84, -0.18);
+        // Накладка бака (белая)
+        const tankDeco = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 12), m.plastic);
+        tankDeco.scale.set(0.6, 0.25, 0.4);
+        tankDeco.position.set(-0.06, 0.86, -0.2);
         bike.add(tankDeco);
 
-        // === ВЫХЛОП ===
-        const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.055, 0.5, 8), m.exhaust);
-        pipe.position.set(0.9, 0.2, 0.3);
-        pipe.rotation.z = 0.15;
+        // ===== ВЫХЛОП =====
+        const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, 0.5, 8), m.exhaust);
+        pipe.position.set(0.9, 0.22, 0.3);
+        pipe.rotation.z = 0.1;
         bike.add(pipe);
 
-        const silencer = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.075, 0.2, 8), m.exhaust);
-        silencer.position.set(1.1, 0.15, 0.35);
-        silencer.rotation.z = 0.08;
+        const silencer = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.2, 8), m.exhaust);
+        silencer.position.set(1.1, 0.16, 0.34);
+        silencer.rotation.z = 0.05;
         bike.add(silencer);
 
-        // === ФАРА ===
+        // ===== ФАРА (белая) =====
         const light = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), m.light);
         light.scale.set(0.7, 0.5, 0.5);
-        light.position.set(-0.85, 0.55, -0.75);
+        light.position.set(-0.85, 0.58, -0.78);
         bike.add(light);
 
         const bezel = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.02, 8, 12), m.frameDark);
-        bezel.position.set(-0.85, 0.55, -0.78);
+        bezel.position.set(-0.85, 0.58, -0.81);
         bike.add(bezel);
 
-        // защита фары (сетка)
-        const guard = new THREE.Mesh(
-            new THREE.CircleGeometry(0.09, 6),
-            new THREE.MeshStandardMaterial({ color: 0x1a1a2a, wireframe: true, transparent: true, opacity: 0.2 })
+        // ===== ЗАЩИТА РАДИАТОРА (белая) =====
+        const radGuard = new THREE.Mesh(
+            new THREE.BoxGeometry(0.3, 0.3, 0.04),
+            new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.0, roughness: 0.6 })
         );
-        guard.position.set(-0.85, 0.55, -0.8);
-        bike.add(guard);
+        radGuard.position.set(-0.05, 0.58, -0.45);
+        bike.add(radGuard);
 
-        // === РАДИАТОР (декор) ===
-        const radiator = new THREE.Mesh(
-            new THREE.BoxGeometry(0.25, 0.3, 0.04),
-            new THREE.MeshStandardMaterial({ color: 0x2a2a3a, metalness: 0.7, roughness: 0.5 })
+        // ===== НОМЕРНАЯ ПАНЕЛЬ (белая) =====
+        const numberPlate = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.28, 0.38),
+            new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x4488ff, emissiveIntensity: 0.02 })
         );
-        radiator.position.set(-0.05, 0.55, -0.42);
-        bike.add(radiator);
+        numberPlate.position.set(-0.5, 0.72, -0.58);
+        numberPlate.rotation.y = 0.15;
+        bike.add(numberPlate);
 
-        // === ЗАЩИТА КАРТЕРА ===
+        // ===== ЗАЩИТА КАРТЕРА =====
         const skid = new THREE.Mesh(
             new THREE.BoxGeometry(0.5, 0.025, 0.3),
-            new THREE.MeshStandardMaterial({ color: 0x2a2a2a, metalness: 0.8, roughness: 0.4 })
+            new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.6, roughness: 0.4 })
         );
         skid.position.set(0.0, 0.28, 0.05);
         bike.add(skid);
@@ -472,7 +423,6 @@
         }
         animate();
 
-        // ─── РЕСАЙЗ ─────────────────────────────────────────────────────────────
         window.addEventListener('resize', () => {
             const w = window.innerWidth;
             const h = window.innerHeight;
@@ -482,8 +432,7 @@
         });
 
         setTimeout(() => { controls.autoRotate = true; }, 1500);
-        console.log('🏍️ ProGasi SuperMax 300CC загружен!');
+        console.log('🔥 ProGasi SuperMax 300CC загружен!');
     </script>
-
 </body>
 </html>
