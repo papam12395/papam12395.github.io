@@ -1,714 +1,329 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🏍️ Stunt Rider — обгоняй машины!</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: #0a0e1a;
-            overflow: hidden;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            color: #fff;
-            user-select: none;
-        }
-        canvas {
-            display: block;
-        }
-
-        /* ─── ХАД ────────────────────────────────────────────────────────────── */
-        #hud {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 20px 30px;
-            z-index: 10;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            pointer-events: none;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, transparent 100%);
-        }
-        #hud>div {
-            pointer-events: auto;
-        }
-        .hud-item {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: rgba(255, 255, 255, 0.4);
-        }
-        .hud-item span {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #fff;
-            display: block;
-            margin-top: 2px;
-        }
-        .hud-item .speed-val {
-            color: #5af;
-        }
-        .hud-item .score-val {
-            color: #ffcc44;
-        }
-        .hud-item .best-val {
-            color: #44ff88;
-        }
-
-        #gameOver {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 20;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(10px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            gap: 20px;
-        }
-        #gameOver h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            color: #ff3333;
-            text-shadow: 0 0 60px rgba(255, 50, 50, 0.3);
-        }
-        #gameOver p {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.5);
-        }
-        #gameOver .final-score {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #ffcc44;
-        }
-        #gameOver button {
-            padding: 16px 50px;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, #ff4444, #cc2222);
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 40px rgba(255, 50, 50, 0.3);
-        }
-        #gameOver button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 14px 50px rgba(255, 50, 50, 0.5);
-        }
-
-        .controls-hint {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 5;
-            color: rgba(255, 255, 255, 0.08);
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            text-align: center;
-            pointer-events: none;
-        }
-
-        @media (max-width: 640px) {
-            #hud {
-                padding: 12px 16px;
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-            .hud-item {
-                font-size: 0.55rem;
-            }
-            .hud-item span {
-                font-size: 1.1rem;
-            }
-            #gameOver h1 {
-                font-size: 2rem;
-            }
-            .controls-hint {
-                font-size: 0.5rem;
-                bottom: 16px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кликер: Арсений</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(145deg, #1e2b3a 0%, #0f1722 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      padding: 16px;
+    }
+    .game-card {
+      max-width: 500px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(8px);
+      border-radius: 60px 60px 40px 40px;
+      padding: 30px 20px 35px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 215, 150, 0.15);
+      text-align: center;
+      transition: 0.2s;
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-weight: 600;
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+      color: #fadfbc;
+      text-shadow: 0 4px 10px #a56b3b50, 0 0 0 1px #b48b5a;
+      word-break: break-word;
+    }
+    .subhead {
+      color: #b9c8d9;
+      font-weight: 400;
+      font-size: 1rem;
+      margin-bottom: 24px;
+      opacity: 0.9;
+      border-bottom: 1px dashed #7f8fa3;
+      padding-bottom: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .coin-display {
+      background: #1f2c39;
+      padding: 8px 22px;
+      border-radius: 50px;
+      border: 1px solid #eac394;
+      box-shadow: inset 0 2px 5px #0b0f14;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 1.8rem;
+      color: #ffddaa;
+    }
+    .coin-icon {
+      font-size: 2rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px #d9a343);
+    }
+    .avatar-wrapper {
+      position: relative;
+      margin: 20px auto 18px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #6f8a9e, #2b3f50);
+      box-shadow: 0 14px 28px #00000066, 0 0 0 4px #ddb582, 0 0 0 8px #3f2e1e;
+      transition: 0.1s ease;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .avatar-wrapper:active {
+      transform: scale(0.93);
+      box-shadow: 0 6px 14px #000000aa, 0 0 0 4px #f5d7a8, 0 0 0 8px #4d3822;
+    }
+    .avatar-emoji {
+      font-size: 130px;
+      line-height: 1;
+      filter: drop-shadow(0 8px 12px #0f1a1f);
+      transform: translateY(-8px);
+    }
+    .click-hint {
+      background: #2f4053;
+      color: #e0d6c0;
+      padding: 10px 16px;
+      border-radius: 80px;
+      font-size: 0.95rem;
+      display: inline-block;
+      margin: 6px 0 18px 0;
+      border: 1px solid #b49b7a;
+      backdrop-filter: blur(2px);
+      box-shadow: inset 0 1px 4px #617183;
+    }
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin: 16px 0 6px;
+    }
+    .stat-badge {
+      background: #1e2b37;
+      padding: 6px 18px;
+      border-radius: 40px;
+      border: 1px solid #7c8b9b;
+      color: #d8d0c0;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+      backdrop-filter: blur(2px);
+    }
+    .reset-btn {
+      background: #2e4057;
+      border: none;
+      border-radius: 40px;
+      padding: 12px 30px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #f2e3cc;
+      border: 1px solid #b29472;
+      box-shadow: 0 6px 0 #0d151e, 0 4px 12px #00000055;
+      transition: 0.08s linear;
+      cursor: pointer;
+      margin-top: 18px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.5px;
+    }
+    .reset-btn:active {
+      transform: translateY(6px);
+      box-shadow: 0 1px 0 #0d151e;
+    }
+    .reset-btn:hover {
+      background: #3f5670;
+      border-color: #dbbd96;
+    }
+    .footer {
+      margin-top: 12px;
+      color: #73899b;
+      font-size: 0.8rem;
+      letter-spacing: 0.3px;
+    }
+    /* анимация +монетка */
+    .coin-fly {
+      position: fixed;
+      pointer-events: none;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fad87a;
+      text-shadow: 0 0 20px #ffb347, 0 0 8px #ff9100;
+      z-index: 999;
+      animation: flyUp 0.9s ease-out forwards;
+    }
+    @keyframes flyUp {
+      0% { opacity: 1; transform: translateY(0px) scale(0.8); }
+      100% { opacity: 0; transform: translateY(-180px) scale(1.4); }
+    }
+    @media (max-width: 500px) {
+      .game-card { padding: 20px 12px; }
+      .avatar-wrapper { width: 170px; height: 170px; }
+      .avatar-emoji { font-size: 100px; }
+      .coin-display { font-size: 1.5rem; padding: 4px 16px; }
+    }
+  </style>
 </head>
 <body>
-
-    <!-- ХАД -->
-    <div id="hud">
-        <div>
-            <div class="hud-item">Скорость <span class="speed-val" id="speedDisplay">0</span></div>
-        </div>
-        <div style="text-align:center;">
-            <div class="hud-item">Счёт <span class="score-val" id="scoreDisplay">0</span></div>
-        </div>
-        <div style="text-align:right;">
-            <div class="hud-item">Рекорд <span class="best-val" id="bestDisplay">0</span></div>
-        </div>
-    </div>
-
-    <!-- GAME OVER -->
-    <div id="gameOver">
-        <h1>💥 АВАРИЯ</h1>
-        <p>Вы врезались!</p>
-        <div class="final-score" id="finalScore">0</div>
-        <button id="restartBtn">🔄 Заново</button>
-    </div>
-
-    <div class="controls-hint">← → или A/D — управление · ↑ или W — ускорение</div>
-
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
-            }
-        }
-    </script>
-
-    <script type="module">
-        import * as THREE from 'three';
-
-        // ─── ОСНОВНЫЕ ПЕРЕМЕННЫЕ ──────────────────────────────────────────────
-        let score = 0;
-        let best = parseInt(localStorage.getItem('stuntRiderBest')) || 0;
-        let speed = 0;
-        const maxSpeed = 2.2;
-        let gameRunning = true;
-        let lane = 0; // -1, 0, 1
-        let targetLane = 0;
-        const laneWidth = 1.8;
-        let roadOffset = 0;
-
-        // ─── СЦЕНА ──────────────────────────────────────────────────────────────
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0a0e1a);
-        scene.fog = new THREE.Fog(0x0a0e1a, 20, 45);
-
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 60);
-        camera.position.set(0, 3.2, 5.5);
-        camera.lookAt(0, 0, -4);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.0;
-        document.body.prepend(renderer.domElement);
-
-        // ─── СВЕТ ──────────────────────────────────────────────────────────────
-        const ambient = new THREE.AmbientLight(0x334466, 0.6);
-        scene.add(ambient);
-
-        const main = new THREE.DirectionalLight(0xffeedd, 2.5);
-        main.position.set(8, 12, 6);
-        main.castShadow = true;
-        main.shadow.mapSize.width = 1024;
-        main.shadow.mapSize.height = 1024;
-        main.shadow.camera.near = 0.5;
-        main.shadow.camera.far = 30;
-        main.shadow.camera.left = -10;
-        main.shadow.camera.right = 10;
-        main.shadow.camera.top = 10;
-        main.shadow.camera.bottom = -10;
-        scene.add(main);
-
-        const fill = new THREE.DirectionalLight(0x4488ff, 0.4);
-        fill.position.set(-5, 3, -8);
-        scene.add(fill);
-
-        const rim = new THREE.DirectionalLight(0x88ccff, 0.3);
-        rim.position.set(-3, 1, 8);
-        scene.add(rim);
-
-        // ─── ДОРОГА ────────────────────────────────────────────────────────────
-        const roadGroup = new THREE.Group();
-        scene.add(roadGroup);
-
-        // Дорожное полотно
-        const roadMat = new THREE.MeshStandardMaterial({
-            color: 0x1a1a2a,
-            roughness: 0.9,
-            metalness: 0.0
-        });
-        const road = new THREE.Mesh(new THREE.PlaneGeometry(12, 60), roadMat);
-        road.rotation.x = -Math.PI / 2;
-        road.position.z = -25;
-        road.receiveShadow = true;
-        roadGroup.add(road);
-
-        // Разметка (пунктир)
-        const dashMat = new THREE.MeshStandardMaterial({
-            color: 0x444466,
-            emissive: 0x222244,
-            emissiveIntensity: 0.1
-        });
-        for (let i = 0; i < 40; i++) {
-            const dash = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 1.2), dashMat);
-            dash.rotation.x = -Math.PI / 2;
-            dash.position.set(0, 0.01, -i * 1.8 + 2);
-            roadGroup.add(dash);
-        }
-
-        // Бордюры
-        const curbMat = new THREE.MeshStandardMaterial({
-            color: 0x222233,
-            roughness: 0.8,
-            metalness: 0.1
-        });
-        for (let side = -1; side <= 1; side += 2) {
-            const curb = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 60), curbMat);
-            curb.position.set(side * 6, 0.04, -25);
-            roadGroup.add(curb);
-        }
-
-        // ─── МОТОЦИКЛ (игрок) ──────────────────────────────────────────────
-        const bikeGroup = new THREE.Group();
-
-        // Рама
-        const frameMat = new THREE.MeshStandardMaterial({ color: 0xcc2222, metalness: 0.3, roughness: 0.4 });
-        const frame = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.08, 1.6), frameMat);
-        frame.position.y = 0.3;
-        bikeGroup.add(frame);
-
-        // Сиденье
-        const seatMat = new THREE.MeshStandardMaterial({ color: 0x1a0e08, roughness: 0.9 });
-        const seat = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.06, 0.4), seatMat);
-        seat.position.set(0, 0.42, 0.35);
-        bikeGroup.add(seat);
-
-        // Бак
-        const tankMat = new THREE.MeshStandardMaterial({ color: 0xdd2222, roughness: 0.4 });
-        const tank = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), tankMat);
-        tank.scale.set(1.1, 0.5, 0.8);
-        tank.position.set(0, 0.4, -0.2);
-        bikeGroup.add(tank);
-
-        // Двигатель
-        const engMat = new THREE.MeshStandardMaterial({ color: 0x6a7a8a, metalness: 0.8, roughness: 0.2 });
-        const engine = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.25), engMat);
-        engine.position.set(0, 0.2, 0);
-        bikeGroup.add(engine);
-
-        // Руль
-        const barMat = new THREE.MeshStandardMaterial({ color: 0x6a7a8a, metalness: 0.7 });
-        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.4, 6), barMat);
-        bar.rotation.z = 0.1;
-        bar.position.set(0, 0.5, -0.6);
-        bikeGroup.add(bar);
-
-        // Грипсы
-        const gripMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 });
-        for (let side = -1; side <= 1; side += 2) {
-            const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.05, 6), gripMat);
-            grip.position.set(side * 0.2, 0.5, -0.62);
-            bikeGroup.add(grip);
-        }
-
-        // Колеса
-        function makeWheel(x, z) {
-            const g = new THREE.Group();
-            const tireMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.95 });
-            const rimMat = new THREE.MeshStandardMaterial({ color: 0x4a5a6a, metalness: 0.7 });
-
-            const tire = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.06, 8, 12), tireMat);
-            tire.rotation.y = Math.PI / 2;
-            g.add(tire);
-
-            const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.03, 10), rimMat);
-            rim.rotation.x = Math.PI / 2;
-            g.add(rim);
-
-            g.position.set(x, 0.06, z);
-            return g;
-        }
-        bikeGroup.add(makeWheel(0.25, 0.6));
-        bikeGroup.add(makeWheel(-0.25, 0.6));
-        bikeGroup.add(makeWheel(0.25, -0.5));
-        bikeGroup.add(makeWheel(-0.25, -0.5));
-
-        // Фара
-        const lightMat = new THREE.MeshStandardMaterial({
-            color: 0xffeedd,
-            emissive: 0xffeeaa,
-            emissiveIntensity: 0.2
-        });
-        const light = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), lightMat);
-        light.position.set(0, 0.3, -0.7);
-        bikeGroup.add(light);
-
-        bikeGroup.position.set(0, 0, 0);
-        scene.add(bikeGroup);
-
-        // ─── МАШИНЫ (противники) ──────────────────────────────────────────────
-        const cars = [];
-        const carColors = [0xcc3333, 0x3366cc, 0x33cc66, 0xcccc33, 0xcc33cc, 0x33cccc, 0xff6622];
-
-        function createCar(color) {
-            const g = new THREE.Group();
-
-            // Кузов
-            const bodyMat = new THREE.MeshStandardMaterial({ color, roughness: 0.3, metalness: 0.4 });
-            const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.25, 1.3), bodyMat);
-            body.position.y = 0.2;
-            g.add(body);
-
-            // Кабина
-            const glassMat = new THREE.MeshStandardMaterial({
-                color: 0x88ccff,
-                transparent: true,
-                opacity: 0.4,
-                metalness: 0.1
-            });
-            const cab = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.15, 0.5), glassMat);
-            cab.position.set(0, 0.35, -0.15);
-            g.add(cab);
-
-            // Колеса
-            const tireMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.95 });
-            const rimMat = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, metalness: 0.5 });
-            for (let x of [-0.3, 0.3]) {
-                for (let z of [-0.4, 0.4]) {
-                    const tire = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.04, 6, 10), tireMat);
-                    tire.rotation.y = Math.PI / 2;
-                    tire.position.set(x, 0.04, z);
-                    g.add(tire);
-                    const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.02, 8), rimMat);
-                    rim.rotation.x = Math.PI / 2;
-                    rim.position.set(x, 0.04, z);
-                    g.add(rim);
-                }
-            }
-
-            // Фары
-            const hlMat = new THREE.MeshStandardMaterial({ color: 0xffeecc, emissive: 0xffcc88, emissiveIntensity: 0.1 });
-            for (let x of [-0.2, 0.2]) {
-                const hl = new THREE.Mesh(new THREE.SphereGeometry(0.03, 4, 4), hlMat);
-                hl.position.set(x, 0.2, -0.65);
-                g.add(hl);
-            }
-
-            return g;
-        }
-
-        function spawnCar() {
-            const color = carColors[Math.floor(Math.random() * carColors.length)];
-            const car = createCar(color);
-            const lane = Math.floor(Math.random() * 3) - 1;
-            const z = -10 - Math.random() * 15;
-            car.position.set(lane * laneWidth, 0, z);
-            car.userData = {
-                lane: lane,
-                speed: 0.3 + Math.random() * 0.6,
-                passed: false
-            };
-            scene.add(car);
-            cars.push(car);
-            return car;
-        }
-
-        // Стартовые машины
-        for (let i = 0; i < 6; i++) {
-            setTimeout(() => {
-                if (gameRunning) spawnCar();
-            }, i * 400);
-        }
-
-        // ─── ОБЪЕКТЫ НА ОБОЧИНЕ ──────────────────────────────────────────────
-        const trees = [];
-        const treeMat = new THREE.MeshStandardMaterial({ color: 0x1a3a2a });
-        const trunkMat = new THREE.MeshStandardMaterial({ color: 0x3a2a1a });
-
-        function spawnTree(z) {
-            const side = Math.random() > 0.5 ? 1 : -1;
-            const x = side * (5.5 + Math.random() * 1.5);
-            const g = new THREE.Group();
-
-            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.06, 0.4, 4), trunkMat);
-            trunk.position.y = 0.2;
-            g.add(trunk);
-
-            const crown = new THREE.Mesh(new THREE.SphereGeometry(0.2 + Math.random() * 0.15, 6, 6), treeMat);
-            crown.position.y = 0.5;
-            g.add(crown);
-
-            g.position.set(x, 0, z);
-            scene.add(g);
-            trees.push(g);
-            return g;
-        }
-
-        for (let i = 0; i < 30; i++) {
-            spawnTree(-5 - i * 2.5);
-            spawnTree(-6 - i * 2.5);
-        }
-
-        // ─── УПРАВЛЕНИЕ ──────────────────────────────────────────────────────
-        const keys = { left: false, right: false, up: false };
-
-        document.addEventListener('keydown', (e) => {
-            if (!gameRunning) return;
-            switch (e.key) {
-                case 'ArrowLeft':
-                case 'a':
-                case 'A':
-                    keys.left = true;
-                    e.preventDefault();
-                    break;
-                case 'ArrowRight':
-                case 'd':
-                case 'D':
-                    keys.right = true;
-                    e.preventDefault();
-                    break;
-                case 'ArrowUp':
-                case 'w':
-                case 'W':
-                    keys.up = true;
-                    e.preventDefault();
-                    break;
-            }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            switch (e.key) {
-                case 'ArrowLeft':
-                case 'a':
-                case 'A':
-                    keys.left = false;
-                    e.preventDefault();
-                    break;
-                case 'ArrowRight':
-                case 'd':
-                case 'D':
-                    keys.right = false;
-                    e.preventDefault();
-                    break;
-                case 'ArrowUp':
-                case 'w':
-                case 'W':
-                    keys.up = false;
-                    e.preventDefault();
-                    break;
-            }
-        });
-
-        // ─── ТАЧ-УПРАВЛЕНИЕ ──────────────────────────────────────────────────
-        let touchX = null;
-
-        renderer.domElement.addEventListener('touchstart', (e) => {
-            touchX = e.touches[0].clientX;
-        });
-
-        renderer.domElement.addEventListener('touchmove', (e) => {
-            if (!gameRunning) return;
-            e.preventDefault();
-            const dx = e.touches[0].clientX - touchX;
-            if (dx > 30) {
-                keys.right = true;
-                keys.left = false;
-            } else if (dx < -30) {
-                keys.left = true;
-                keys.right = false;
-            } else {
-                keys.left = false;
-                keys.right = false;
-            }
-            keys.up = true;
-        });
-
-        renderer.domElement.addEventListener('touchend', () => {
-            keys.left = false;
-            keys.right = false;
-            keys.up = false;
-        });
-
-        // ─── ИГРОВОЙ ЦИКЛ ──────────────────────────────────────────────────────
-        const speedDisplay = document.getElementById('speedDisplay');
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        const bestDisplay = document.getElementById('bestDisplay');
-        const finalScore = document.getElementById('finalScore');
-        const gameOverScreen = document.getElementById('gameOver');
-        const restartBtn = document.getElementById('restartBtn');
-
-        bestDisplay.textContent = best;
-
-        let frameCount = 0;
-        let spawnTimer = 0;
-
-        function gameLoop() {
-            if (!gameRunning) {
-                requestAnimationFrame(gameLoop);
-                return;
-            }
-
-            frameCount++;
-
-            // ─── УПРАВЛЕНИЕ ──────────────────────────────────────────────────
-            if (keys.left) targetLane = -1;
-            else if (keys.right) targetLane = 1;
-            else targetLane = 0;
-
-            if (keys.up) {
-                speed = Math.min(speed + 0.02, maxSpeed);
-            } else {
-                speed = Math.max(speed - 0.01, 0.3);
-            }
-
-            // Плавное перестроение
-            lane += (targetLane - lane) * 0.08;
-            bikeGroup.position.x = lane * laneWidth;
-
-            // Наклон мотоцикла
-            bikeGroup.rotation.z = -lane * 0.15;
-
-            // ─── ДВИЖЕНИЕ ДОРОГИ ────────────────────────────────────────────
-            roadOffset += speed * 0.15;
-            roadGroup.position.z = (roadOffset % 1.8) - 0.9;
-
-            // ─── ДВИЖЕНИЕ МАШИН ─────────────────────────────────────────────
-            for (let i = cars.length - 1; i >= 0; i--) {
-                const car = cars[i];
-                car.position.z += speed * 0.3 - car.userData.speed * 0.5;
-
-                // Проверка столкновения
-                const dx = Math.abs(car.position.x - bikeGroup.position.x);
-                const dz = Math.abs(car.position.z - 0);
-                if (dx < 0.8 && dz < 1.0 && car.position.z < 0.5 && car.position.z > -0.5) {
-                    gameOver();
-                    return;
-                }
-
-                // Подсчет очков (обгон)
-                if (car.position.z > 2 && !car.userData.passed) {
-                    car.userData.passed = true;
-                    score += 10;
-                    scoreDisplay.textContent = score;
-                    if (score > best) {
-                        best = score;
-                        localStorage.setItem('stuntRiderBest', String(best));
-                        bestDisplay.textContent = best;
-                    }
-                }
-
-                // Удаление машин
-                if (car.position.z > 15) {
-                    scene.remove(car);
-                    cars.splice(i, 1);
-                }
-            }
-
-            // ─── СПАВН МАШИН ────────────────────────────────────────────────
-            spawnTimer++;
-            const spawnRate = Math.max(20, 60 - speed * 15);
-            if (spawnTimer > spawnRate && cars.length < 12) {
-                spawnCar();
-                spawnTimer = 0;
-            }
-
-            // ─── ДВИЖЕНИЕ ДЕРЕВЬЕВ ──────────────────────────────────────────
-            for (let i = trees.length - 1; i >= 0; i--) {
-                const tree = trees[i];
-                tree.position.z += speed * 0.3;
-                if (tree.position.z > 15) {
-                    scene.remove(tree);
-                    trees.splice(i, 1);
-                    spawnTree(-20 - Math.random() * 5);
-                }
-            }
-
-            // ─── ОБНОВЛЕНИЕ ХАД ─────────────────────────────────────────────
-            const speedKmh = Math.round(speed * 80);
-            speedDisplay.textContent = speedKmh;
-
-            // ─── КАМЕРА ──────────────────────────────────────────────────────
-            camera.position.x += (bikeGroup.position.x * 0.3 - camera.position.x) * 0.05;
-            camera.position.y = 3.2 + speed * 0.2;
-            camera.lookAt(bikeGroup.position.x * 0.3, 0, -4);
-
-            // ─── РЕНДЕРИНГ ──────────────────────────────────────────────────
-            renderer.render(scene, camera);
-            requestAnimationFrame(gameLoop);
-        }
-
-        // ─── GAME OVER ──────────────────────────────────────────────────────
-        function gameOver() {
-            gameRunning = false;
-            finalScore.textContent = `🏆 ${score} очков`;
-            gameOverScreen.style.display = 'flex';
-        }
-
-        restartBtn.addEventListener('click', () => {
-            // Очистка машин
-            for (const car of cars) {
-                scene.remove(car);
-            }
-            cars.length = 0;
-            // Очистка деревьев
-            for (const tree of trees) {
-                scene.remove(tree);
-            }
-            trees.length = 0;
-
-            // Сброс состояния
-            score = 0;
-            speed = 0.3;
-            lane = 0;
-            targetLane = 0;
-            bikeGroup.position.x = 0;
-            bikeGroup.rotation.z = 0;
-            gameRunning = true;
-            gameOverScreen.style.display = 'none';
-            scoreDisplay.textContent = '0';
-            speedDisplay.textContent = '0';
-            spawnTimer = 0;
-
-            // Респавн деревьев
-            for (let i = 0; i < 30; i++) {
-                spawnTree(-5 - i * 2.5);
-                spawnTree(-6 - i * 2.5);
-            }
-
-            // Стартовые машины
-            for (let i = 0; i < 4; i++) {
-                setTimeout(() => {
-                    if (gameRunning) spawnCar();
-                }, i * 300);
-            }
-
-            camera.position.set(0, 3.2, 5.5);
-            camera.lookAt(0, 0, -4);
-        });
-
-        // ─── РЕСАЙЗ ──────────────────────────────────────────────────────────
-        window.addEventListener('resize', () => {
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            camera.aspect = w / h;
-            camera.updateProjectionMatrix();
-            renderer.setSize(w, h);
-        });
-
-        // ─── ЗАПУСК ──────────────────────────────────────────────────────────
-        gameLoop();
-
-        console.log('🏍️ Stunt Rider запущен!');
-        console.log('🎮 ← → или A/D — управление, ↑ или W — газ');
-    </script>
+<div class="game-card">
+  <h1>🧑‍🌾 Арсений</h1>
+  <div class="subhead">
+    <span>💰 кликер</span>
+    <span class="coin-display">
+      <span class="coin-icon">🪙</span>
+      <span id="coinCounter">0</span>
+    </span>
+  </div>
+
+  <!-- Персонаж -->
+  <div class="avatar-wrapper" id="arseniyAvatar" role="button" aria-label="Кликни на Арсения">
+    <div class="avatar-emoji">🧑‍🌾</div>
+  </div>
+
+  <div class="click-hint">
+    👆 Нажми на Арсения, чтобы заработать монету!
+  </div>
+
+  <div class="stats">
+    <span class="stat-badge">🎯 кликов: <span id="clickCount">0</span></span>
+    <span class="stat-badge">⚡ множитель: x1</span>
+  </div>
+
+  <button class="reset-btn" id="resetButton">
+    <span>⟳</span> Сбросить прогресс
+  </button>
+  <div class="footer">✨ каждый клик = +1 🪙</div>
+</div>
+
+<script>
+  (function() {
+    "use strict";
+
+    // ----- состояние -----
+    let coins = 0;
+    let totalClicks = 0;
+
+    // DOM-элементы
+    const coinCounterEl = document.getElementById('coinCounter');
+    const clickCountEl = document.getElementById('clickCount');
+    const avatar = document.getElementById('arseniyAvatar');
+    const resetBtn = document.getElementById('resetButton');
+
+    // вспомогательная функция обновления UI
+    function updateUI() {
+      coinCounterEl.textContent = coins;
+      clickCountEl.textContent = totalClicks;
+    }
+
+    // ----- анимация вылетающей монетки -----
+    function spawnCoinAnimation(x, y) {
+      const fly = document.createElement('div');
+      fly.className = 'coin-fly';
+      fly.textContent = '🪙 +1';
+      // позиционируем около места клика (чуть выше)
+      fly.style.left = (x - 30) + 'px';
+      fly.style.top = (y - 30) + 'px';
+      // случайный небольшой разброс
+      const offsetX = (Math.random() - 0.5) * 40;
+      const offsetY = (Math.random() - 0.5) * 30 - 10;
+      fly.style.setProperty('--dx', offsetX + 'px');
+      fly.style.setProperty('--dy', offsetY + 'px');
+      document.body.appendChild(fly);
+
+      // удаляем после анимации
+      setTimeout(() => {
+        if (fly.parentNode) fly.remove();
+      }, 950);
+    }
+
+    // ----- обработчик клика по Арсению -----
+    function handleAvatarClick(e) {
+      // увеличиваем счётчики
+      coins += 1;
+      totalClicks += 1;
+      updateUI();
+
+      // получаем координаты для анимации (центр аватара или место клика)
+      let clientX, clientY;
+      if (e.clientX && e.clientY) {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      } else {
+        // fallback (если вдруг)
+        const rect = avatar.getBoundingClientRect();
+        clientX = rect.left + rect.width / 2;
+        clientY = rect.top + rect.height / 2;
+      }
+      spawnCoinAnimation(clientX, clientY);
+    }
+
+    // ----- сброс -----
+    function resetGame() {
+      if (coins === 0 && totalClicks === 0) {
+        // можно и так оставить, но пусть сбрасывается
+      }
+      coins = 0;
+      totalClicks = 0;
+      updateUI();
+    }
+
+    // ----- привязываем события -----
+    avatar.addEventListener('click', handleAvatarClick);
+    resetBtn.addEventListener('click', resetGame);
+
+    // дополнительно: поддержка тач-событий для мобильных (без дублирования)
+    // так как click срабатывает и на тач, но чтобы избежать проблем с задержкой 300ms – ок
+    // также ловим touchstart, чтобы не было задержки (но click дублирует, поэтому блокируем дубли)
+    let touchFired = false;
+    avatar.addEventListener('touchstart', (e) => {
+      // если уже обработали touch, не даём click сработать дважды
+      if (touchFired) {
+        e.preventDefault();
+        return;
+      }
+      touchFired = true;
+      // эмулируем клик с координатами
+      const touch = e.touches[0];
+      if (touch) {
+        handleAvatarClick({ clientX: touch.clientX, clientY: touch.clientY });
+      } else {
+        handleAvatarClick(e);
+      }
+      // сбрасываем флаг через короткое время
+      setTimeout(() => { touchFired = false; }, 100);
+      e.preventDefault();   // предотвращаем scroll/zoom
+    }, { passive: false });
+
+    // предотвращаем контекстное меню на аватаре (долгий тап)
+    avatar.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Стартовый UI
+    updateUI();
+
+    // бонус: если кто-то кликнет на кнопку сброса – никаких лишних действий
+    // дополнительно сброс по двойному клику? не надо
+  })();
+</script>
 </body>
 </html>
